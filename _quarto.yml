@@ -1,0 +1,28 @@
+project:
+  type: website
+  output-dir: docs
+
+editor: visual
+
+website: 
+  cookie-consent: 
+    type: express
+    style: simple
+    palette: dark
+  title: "Phan Truong Quynh Anh"
+  navbar:
+    left:
+      - text: Blog
+        href: blog/index.qmd
+    right:
+      - icon: github
+        href: https://github.com/quingzz
+      - icon: linkedin
+        href: https://vn.linkedin.com/in/truong-quynh-anh-phan-219572212
+
+execute: 
+  echo: true
+
+format:
+  html:
+    theme: [cosmo, theme.scss]

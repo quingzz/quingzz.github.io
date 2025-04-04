@@ -1,0 +1,17 @@
+---
+title: "Phan Truong Quynh Anh"
+comments: false
+about: 
+  template: trestles
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/quingzz
+    - icon: linkedin
+      text: Linkedin
+      href: https://vn.linkedin.com/in/truong-quynh-anh-phan-219572212
+---
+
+Hello World!
+
+I'm Quynh Anh, an IT graduate and working as a research assistant for the Math Modelling group at Oxford Clinical Research Unit (OUCRU).

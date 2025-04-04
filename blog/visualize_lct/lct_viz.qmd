@@ -1,0 +1,399 @@
+---
+title: Linear Chain Trick crash course
+date: "2025-04-03"
+resources:
+  - /data/erlang_dist.csv
+  - /data/sum_k_exp.csv
+format: 
+  html:
+    embed-resources: true
+    self-contained: true
+---
+
+::: {.callout-note collapse="true"}
+## Before we dive in
+
+The goal of this blog post:
+
+-   Introduce Linear Chain Trick
+
+-   Explain Linear Chain Trick in a more "digestable" way (hopefully)
+
+What this blog post does [**NOT**]{.underline} provide:
+
+-   Detailed mathematical proof for Linear Chain Trick
+
+-   More advanced use cases (e.g., transition to multiple compartments)
+
+Who is this for?
+
+-   Those who are relatively new to compartmental modeling (like me) but already know the basics (e.g., able to understand the SIR model)
+
+-   And, of course, those who are interested to learn and understand Linear Chain Trick
+:::
+
+## Background
+
+Traditionally, SIR are formulated using the following ODE
+
+$$
+\begin{cases}
+dS = - \beta \frac{I}{N} S \\
+dI = \beta \frac{I}{N} S - \mu I \\
+dR = \mu I
+\end{cases}
+$$
+
+With the underlying assumption that the infectious period (time to move from I to R **or** dwell-time in I compartment) is exponentially distributed (with rate $\mu$ and mean infectious time $\frac{1}{\mu}$ ). This was proven to be inadequate to capture many disease dynamics, as such, several formulations were suggested to incorporate other types of distributions.
+
+Linear Chain Trick (LCT) in particular, is for modeling **Erlang** distributed infectious period (i.e., Gamma distribution with integer shape).
+
+## Linear Chain Trick
+
+### Formulation
+
+The generalized formulation for $I \rightarrow R$ transition where infectious period is Erlang distributed is as followed
+
+$$
+\begin{cases}
+dI_1 = - rI_1 \\
+dI_2 = rI_1 - rI_2 \\
+\vdots \\
+dI_k = rI_{k - 1} - rI_k \\
+dR = rI_k
+\end{cases}
+$$
+
+Where:
+
+-   $k$ is the shape parameter of the Erlang distribution
+
+-   $r$ is the rate parameter of the Erlang distribution
+
+::: {.callout-note collapse="true"}
+## Example
+
+For Erlang distribution with `rate=1/4`, `shape = 3`, the formulation would be
+
+$$
+\begin{cases}
+dI_1 = -\frac{1}{4}I_1 \\
+dI_2 = \frac{1}{4}I_1 -\frac{1}{4}I_2 \\
+dI_3 = \frac{1}{4}I_2 -\frac{1}{4}I_3 \\
+dR = \frac{1}{4}I_3 
+\end{cases}
+$$
+:::
+
+**The intuition of what is going on**: The key idea is to [delay]{.underline} the transition from I to R by introducing sub-compartment(s) i.e, $I_1$, $I_2$, ..., $I_k$.
+
+### A closer look at the formulation
+
+```{=html}
+<details>
+  <summary> <i><b>Wait, then when <code>shape = 1</code>, isn't that the same ODE from when the infectious period is exponentially distributed? </i></b> </summary>
+```
+Yes! if you plug `k = 1` in the formula for Erlang distribution, you will get the formula for exponential distribution.
+
+Recall that
+
+$$
+\text{Erlang}(rate=r , shape=k) = \frac{r^k x^{k-1} e^{-r x}}{(k-1)!}
+$$
+
+When `k=1`
+
+$$
+\text{Erlang}(rate=r , shape=1) = \frac{r x^{0} e^{-r x}}{(0)!} = r e^{-r x}
+$$
+
+</details>
+
+```{=html}
+<details>
+  <summary> 
+  <i><b>But why the ODE for Erlang distributed infectious period look like that? </i></b> 
+  </summary>
+```
+For me, the quickest way to understand is to try differentiating the Erlang distribution function
+
+$$
+f(x) =  \frac{r^k x^{k-1} e^{-r x}}{(k-1)!}
+$$
+
+Using substitutions
+
+$$
+\begin{cases}
+u = r^k e^{-rx} \rightarrow u' = -r^{k+1} e^{-rx}\\ 
+v = \frac{x^{k-1}}{(k-1)!} \rightarrow v' = \frac{ x^{k-2} }{(k-2)!}
+\end{cases}
+$$
+
+We have
+
+$$
+f(x) = uv \rightarrow f'(x) = u'v + uv' 
+$$ $$
+f'(x) = (-r^{k+1} e^{-rx})(\frac{x^{k-1}}{(k-1)!}) +  (r^k e^{-rx})(\frac{ x^{k-2} }{(k-2)!}) \\
+$$ $$
+f'(x) = -r (r^{k} e^{-rx} \frac{x^{k-1}}{(k-1)!}) + r (r^{k-1} e^{-rx})(\frac{ x^{k-2} }{(k-2)!})
+$$
+
+Notice something familiar?
+
+-   On the left side of $+$, we have $-r (r^{k} e^{-rx} \frac{x^{k-1}}{(k-1)!}) = -r *\text{Erlang}(k,r)$
+
+-   On the right side of $+$, we have $r (r^{k-1} e^{-rx})(\frac{ x^{k-2} }{(k-2)!}) = r (\frac{ r^{k-1} e^{-rx} x^{k-2} }{(k-2)!}) = r* \text{Erlang}(k-1,r)$
+
+Hence we have $\frac{d}{dx} \text{Erlang}(r,k) = r * \text{Erlang}(r,k-1) - r*\text{Erlang}(r,k)$
+
+Which, in our formulation, is denoted as $dI_k = rI_{k - 1} - rI_k$
+
+Note that we need $I_{k-1}$ hence the need for $dI_{k-1}$, subsequently $dI_{k-2}$, $dI_{k-3}$ ... until we reach the base case $dI_1$. Which, as we previously discussed, is simply derivative of exponential distribution $dI_1 = -rI_1$.
+
+</details>
+
+::: {.callout-note collapse="true"}
+## The property behind LCT
+
+LCT works by exploiting a property of Poisson processes: the time to $k_{th}$ event under a homogeneous Poisson process at rate $r$ is Erlang distributed with shape $k$ and rate $r$.
+
+Another way to think of it is each event is preceded by a length of time that is exponentially distributed with rate $r$, and thus the time to $k_{th}$ event is the sum of $k$ independent and identical exponential random variables. The distribution of this sum turns out to be the Erlang distribution, with rate $r$ and shape $k$.
+:::
+
+### Implementing LCT in deSolve
+
+Consider a very simple scenario where there is no incoming population for I (i.e., no `S->I` transition) and the infectious period is Erlang distributed with `rate=1/4` and `shape (k) = 3`
+
+```{r warning=FALSE, output=FALSE, message=FALSE}
+#| code-fold: false
+#| code-summary: "Model in deSolve"
+library(deSolve)
+library(tidyverse)
+
+transition_func <- function(t, state, param){
+  with(as.list( c(state, param) ), {
+    dI1 = - rate*I1
+    dI2 = rate*I1 - rate*I2
+    dI3 = rate*I2 - rate*I3
+    dR = rate*I3
+    
+    list(c(dI1, dI2, dI3, dR))
+  })
+}
+
+desolveInitialValues <- c(
+  I1 = 100,
+  I2 = 0,
+  I3 = 0,
+  R = 0
+)
+
+# ====== settings ======== 
+parameters <- c(
+  rate = 1/4 # rate for Erlang distribution
+)
+```
+
+```{r run the simulation}
+#| code-fold: false
+#| code-summary: "Run the model"
+simulationDuration <- 50
+times <- seq(0, simulationDuration)
+
+ode_mod <- ode(y = desolveInitialValues, times = times, parms = parameters, func = transition_func) 
+ode_mod <- as.data.frame(ode_mod)
+```
+
+## Visualization
+
+Another good way to have an intuitive understanding is to visualize what is happening.
+
+### Population in sub-compartments
+
+The following plot shows how the population in each sub-compartment and the population of I (dashed line) changes over time. Note that we're using the model from the previous section, with `Erlang(r=1/4, k=3)` distributed infectious period.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for plotting"
+i_plot <- ode_mod %>% 
+  mutate(
+    I = I1 + I2 + I3
+  ) %>% 
+  ggplot() +
+    geom_line(aes(x = time, y = I1, color = "I1")) +
+    geom_line(aes(x = time, y = I2, color = "I2")) +
+    geom_line(aes(x = time, y = I3, color = "I3")) +
+    geom_line(aes(x = time, y = I), color = "red", linetype = "dashed") + 
+    scale_color_manual(
+      values = c("I1" = "cornflowerblue", "I2" = "darkblue", "I3" = "blueviolet")
+    )+
+    labs(
+      title = "Infectious population over time",
+      x = "Time",
+      y = "Proportion"
+    )
+i_plot
+```
+
+**Looks familiar?** If not, here is the Erlang distribution with `rate = 1/4`, `shape=1, 2 and 3`
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for plotting"
+library(patchwork)
+gamma_dists <- data.frame(
+    x = seq(0, 50),
+    shape1 = dgamma(seq(0, 50), rate = 1/4, shape = 1),
+    shape2 = dgamma(seq(0, 50), rate = 1/4, shape = 2),
+    shape3 = dgamma(seq(0, 50), rate = 1/4, shape = 3)
+  ) %>% 
+  ggplot() +
+  geom_line(aes(x=x, y=shape1, color="k=1")) + 
+  geom_line(aes(x=x, y=shape2, color="k=2")) +
+  geom_line(aes(x=x, y=shape3, color="k=3")) + 
+  scale_color_manual(
+    values = c("k=1" = "cornflowerblue", "k=2" = "darkblue", "k=3" = "blueviolet")
+  )+
+  labs(
+    x = "Time",
+    y = "Probability",
+    title = "Erlang distribution with rate=1/4"
+  )
+
+i_plot / gamma_dists
+```
+
+Visually, we can also see that the distribution for dwell-time of $I_n$ follows $Erlang(rate=r, shape=n)$ distribution. To change the shape parameter of the Erlang distribution, we can simply change the number of sub-compartments.
+
+### Sum of k i.i.d. exponential random variables
+
+One of the reason LCT works is the fact that "the sum of $k$ identical, independent exponential random variables with rate $r$ follows $\text{Erlang}(r,k)$ distribution".
+
+To convince this (mostly to myself) visually, we can try computing this and compare it with an Erlang distribution.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Function to compute sum of k i.i.d. exp variables"
+compute_dist_sum_exp <- function(rate=1/2, k=2, n = 100){
+  # divide by k so sum of k identical distribution can go up to n
+  x_range <- seq(0, n/k, by=0.05)
+  curr_density <- dexp(x_range, rate = rate)
+
+  if(k>1){
+    sapply(
+      2:k,
+      \(curr_k){
+        # compute distribution of sum of 2 exponential random variable using convolution
+        curr_density <<- convolve(
+          curr_density,
+          rev(dexp(x_range, rate = rate)),
+          type = "open"
+        )
+        
+        # adjust x_range for length of the convolution 
+        x_range <<- seq(0, n/k, length.out = length(curr_density))
+      }
+    )
+  }
+
+  data.frame(
+    x = seq(0, n, length.out = length(curr_density)),
+    density = curr_density/sum(curr_density)
+  )
+}
+
+```
+
+For this demonstration, `rate = 1/2` is used, while value for $k$ (i.e. shape of Erlang) can be adjusted below.
+
+```{r eval=FALSE}
+#| code-fold: true
+#| code-summary: "Compute data for plotting"
+n <- 20
+
+sum_k_exp <- bind_rows(
+  lapply(
+    1:10,
+    \(curr_k){
+      compute_dist_sum_exp(k=curr_k) %>% 
+      filter(x<=n) %>% 
+      mutate(k=curr_k)
+    }
+  )
+)
+
+erlang_dist <- bind_rows(
+  lapply(
+    1:10,
+    \(curr_k){
+      data.frame(
+        x = seq(0, n, 0.05),
+        density = dgamma(seq(0, n, 0.05), rate=1/2, shape=curr_k)
+      ) %>% 
+      mutate(
+        # normalize
+        density = density/sum(density),
+        k = curr_k
+      )
+    }
+  )
+)
+
+write_csv(sum_k_exp, "./data/sum_k_exp.csv")
+write_csv(erlang_dist, "./data/erlang_dist.csv")
+```
+
+```{ojs}
+//| echo: false
+Plot = import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm")
+
+sum_k_exp = FileAttachment("data/sum_k_exp.csv").csv({typed:true})
+erlang_dist = FileAttachment("data/erlang_dist.csv").csv({typed:true})
+
+// Slider to change shape (k)
+viewof shape = Inputs.range([1, 7], {value: 1, step: 1, label: "Shape of Erlang"})
+
+sum_k_exp_filtered = sum_k_exp.filter(row => row.k === shape)
+erlang_dist_filtered = erlang_dist.filter(row => row.k === shape)
+
+
+// Plotting sum of k exp variables
+Plot.plot({
+  marks: [
+    Plot.line(
+      sum_k_exp_filtered.map(d => [d.x, d.density]), 
+      {stroke: "cornflowerblue"})
+  ],
+  title: `Probability distribution of sum of ${shape} i.i.d exponential random variables`,
+  y: {label: "Prob"},
+  width: 500,
+  height: 300
+})
+
+// Plotting sum of k exp variables
+Plot.plot({
+  marks: [
+    Plot.line(
+      erlang_dist_filtered.map(d => [d.x, d.density]), 
+      {stroke: "cornflowerblue"})
+  ],
+  title: `Erlang distribution with rate 1/2 and shape ${shape}`,
+  y: {label: "Prob"},
+  width: 500,
+  height: 300
+})
+```
+
+## Recap
+
+::: callout-note
+### In this blog we have
+
+-   Discussed the goal of Linear Chain Trick
+
+-   Formulation and implementation for Linear Chain Trick in R (using deSolve package)
+
+-   (Hopefully) provide a simple explanation for the formulation
+:::
