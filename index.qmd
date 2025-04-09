@@ -9,7 +9,7 @@ about:
       href: https://github.com/quingzz
     - icon: linkedin
       text: Linkedin
-      href: https://vn.linkedin.com/in/truong-quynh-anh-phan-219572212
+      href: https://linkedin.com/in/truong-quynh-anh-phan-219572212
 ---
 
 Hello World!

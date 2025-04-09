@@ -4,6 +4,7 @@ date: "2025-04-03"
 resources:
   - /data/erlang_dist.csv
   - /data/sum_k_exp.csv
+bibliography: references.bib
 format: 
   html:
     embed-resources: true
@@ -157,7 +158,7 @@ Note that we need $I_{k-1}$ hence the need for $dI_{k-1}$, subsequently $dI_{k-2
 ::: {.callout-note collapse="true"}
 ## The property behind LCT
 
-LCT works by exploiting a property of Poisson processes: the time to $k_{th}$ event under a homogeneous Poisson process at rate $r$ is Erlang distributed with shape $k$ and rate $r$.
+LCT works by exploiting a property of Poisson processes: the time to $k_{th}$ event under a homogeneous Poisson process at rate $r$ is Erlang distributed with shape $k$ and rate $r$ [@hurtado2019].
 
 Another way to think of it is each event is preceded by a length of time that is exponentially distributed with rate $r$, and thus the time to $k_{th}$ event is the sum of $k$ independent and identical exponential random variables. The distribution of this sum turns out to be the Erlang distribution, with rate $r$ and shape $k$.
 :::
