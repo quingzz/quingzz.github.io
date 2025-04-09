@@ -84,6 +84,25 @@ code span.st { color: #4070a0; }
 code span.va { color: #19177c; } 
 code span.vs { color: #4070a0; } 
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
 </style>
 
 
@@ -23734,7 +23753,7 @@ initializeRuntime();
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://vn.linkedin.com/in/truong-quynh-anh-phan-219572212"><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://linkedin.com/in/truong-quynh-anh-phan-219572212"><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -23941,7 +23960,7 @@ The property behind LCT
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>LCT works by exploiting a property of Poisson processes: the time to <span class="math inline">\(k_{th}\)</span> event under a homogeneous Poisson process at rate <span class="math inline">\(r\)</span> is Erlang distributed with shape <span class="math inline">\(k\)</span> and rate <span class="math inline">\(r\)</span>.</p>
+<p>LCT works by exploiting a property of Poisson processes: the time to <span class="math inline">\(k_{th}\)</span> event under a homogeneous Poisson process at rate <span class="math inline">\(r\)</span> is Erlang distributed with shape <span class="math inline">\(k\)</span> and rate <span class="math inline">\(r\)</span> <span class="citation" data-cites="hurtado2019">(<a href="#ref-hurtado2019" role="doc-biblioref">Hurtado and Kirosingh 2019</a>)</span>.</p>
 <p>Another way to think of it is each event is preceded by a length of time that is exponentially distributed with rate <span class="math inline">\(r\)</span>, and thus the time to <span class="math inline">\(k_{th}\)</span> event is the sum of <span class="math inline">\(k\)</span> independent and identical exponential random variables. The distribution of this sum turns out to be the Erlang distribution, with rate <span class="math inline">\(r\)</span> and shape <span class="math inline">\(k\)</span>.</p>
 </div>
 </div>
@@ -24131,30 +24150,30 @@ The property behind LCT
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="350" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 349;"><span id="cb9-350"><a href="#cb9-350" aria-hidden="true" tabindex="-1"></a>Plot <span class="op">=</span> <span class="im">import</span>(<span class="st">&quot;https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm&quot;</span>)</span>
-<span id="cb9-351"><a href="#cb9-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-352"><a href="#cb9-352" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/sum_k_exp.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
-<span id="cb9-353"><a href="#cb9-353" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/erlang_dist.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
-<span id="cb9-354"><a href="#cb9-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-355"><a href="#cb9-355" aria-hidden="true" tabindex="-1"></a><span class="co">// Slider to change shape (k)</span></span>
-<span id="cb9-356"><a href="#cb9-356" aria-hidden="true" tabindex="-1"></a>viewof shape <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">7</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Shape of Erlang&quot;</span>})</span>
-<span id="cb9-357"><a href="#cb9-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-358"><a href="#cb9-358" aria-hidden="true" tabindex="-1"></a>sum_k_exp_filtered <span class="op">=</span> sum_k_exp<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
-<span id="cb9-359"><a href="#cb9-359" aria-hidden="true" tabindex="-1"></a>erlang_dist_filtered <span class="op">=</span> erlang_dist<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
-<span id="cb9-360"><a href="#cb9-360" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="351" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 350;"><span id="cb9-351"><a href="#cb9-351" aria-hidden="true" tabindex="-1"></a>Plot <span class="op">=</span> <span class="im">import</span>(<span class="st">&quot;https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm&quot;</span>)</span>
+<span id="cb9-352"><a href="#cb9-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-353"><a href="#cb9-353" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/sum_k_exp.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
+<span id="cb9-354"><a href="#cb9-354" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/erlang_dist.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
+<span id="cb9-355"><a href="#cb9-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-356"><a href="#cb9-356" aria-hidden="true" tabindex="-1"></a><span class="co">// Slider to change shape (k)</span></span>
+<span id="cb9-357"><a href="#cb9-357" aria-hidden="true" tabindex="-1"></a>viewof shape <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">7</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Shape of Erlang&quot;</span>})</span>
+<span id="cb9-358"><a href="#cb9-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-359"><a href="#cb9-359" aria-hidden="true" tabindex="-1"></a>sum_k_exp_filtered <span class="op">=</span> sum_k_exp<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
+<span id="cb9-360"><a href="#cb9-360" aria-hidden="true" tabindex="-1"></a>erlang_dist_filtered <span class="op">=</span> erlang_dist<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
 <span id="cb9-361"><a href="#cb9-361" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-362"><a href="#cb9-362" aria-hidden="true" tabindex="-1"></a><span class="co">// Plotting sum of k exp variables</span></span>
-<span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a>      sum_k_exp_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
-<span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
-<span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Probability distribution of sum of </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs"> i.i.d exponential random variables`</span><span class="op">,</span></span>
-<span id="cb9-370"><a href="#cb9-370" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
-<span id="cb9-371"><a href="#cb9-371" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
-<span id="cb9-372"><a href="#cb9-372" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
-<span id="cb9-373"><a href="#cb9-373" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-362"><a href="#cb9-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a><span class="co">// Plotting sum of k exp variables</span></span>
+<span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a>      sum_k_exp_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
+<span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
+<span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb9-370"><a href="#cb9-370" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Probability distribution of sum of </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs"> i.i.d exponential random variables`</span><span class="op">,</span></span>
+<span id="cb9-371"><a href="#cb9-371" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
+<span id="cb9-372"><a href="#cb9-372" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
+<span id="cb9-373"><a href="#cb9-373" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
+<span id="cb9-374"><a href="#cb9-374" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -24204,17 +24223,17 @@ The property behind LCT
 </div>
 </div>
 </div>
-<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="376" data-source-offset="-804"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 375;"><span id="cb10-376"><a href="#cb10-376" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb10-378"><a href="#cb10-378" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb10-379"><a href="#cb10-379" aria-hidden="true" tabindex="-1"></a>      erlang_dist_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
-<span id="cb10-380"><a href="#cb10-380" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
-<span id="cb10-381"><a href="#cb10-381" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb10-382"><a href="#cb10-382" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Erlang distribution with rate 1/2 and shape </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs">`</span><span class="op">,</span></span>
-<span id="cb10-383"><a href="#cb10-383" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
-<span id="cb10-384"><a href="#cb10-384" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
-<span id="cb10-385"><a href="#cb10-385" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
-<span id="cb10-386"><a href="#cb10-386" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="377" data-source-offset="-804"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 376;"><span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb10-378"><a href="#cb10-378" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-379"><a href="#cb10-379" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb10-380"><a href="#cb10-380" aria-hidden="true" tabindex="-1"></a>      erlang_dist_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
+<span id="cb10-381"><a href="#cb10-381" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
+<span id="cb10-382"><a href="#cb10-382" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb10-383"><a href="#cb10-383" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Erlang distribution with rate 1/2 and shape </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs">`</span><span class="op">,</span></span>
+<span id="cb10-384"><a href="#cb10-384" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
+<span id="cb10-385"><a href="#cb10-385" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
+<span id="cb10-386"><a href="#cb10-386" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
+<span id="cb10-387"><a href="#cb10-387" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-8" data-nodetype="expression">
@@ -24246,9 +24265,14 @@ In this blog we have
 </div>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-hurtado2019" class="csl-entry" role="doc-biblioentry">
+Hurtado, Paul J., and Adam S. Kirosingh. 2019. <span>“Generalizations of the <span>‘</span>Linear Chain Trick<span>’</span>: Incorporating More Flexible Dwell Time Distributions into Mean Field ODE Models.”</span> <em>Journal of Mathematical Biology</em> 79 (5): 18311883. <a href="https://doi.org/10.1007/s00285-019-01412-w">https://doi.org/10.1007/s00285-019-01412-w</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script type="ojs-module-contents">
 {"contents":[{"methodName":"interpret","cellName":"ojs-cell-1","inline":false,"source":"Plot = import(\"https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm\")\n\nsum_k_exp = FileAttachment(\"data/sum_k_exp.csv\").csv({typed:true})\nerlang_dist = FileAttachment(\"data/erlang_dist.csv\").csv({typed:true})\n\n// Slider to change shape (k)\nviewof shape = Inputs.range([1, 7], {value: 1, step: 1, label: \"Shape of Erlang\"})\n\nsum_k_exp_filtered = sum_k_exp.filter(row => row.k === shape)\nerlang_dist_filtered = erlang_dist.filter(row => row.k === shape)\n\n\n// Plotting sum of k exp variables\nPlot.plot({\n  marks: [\n    Plot.line(\n      sum_k_exp_filtered.map(d => [d.x, d.density]), \n      {stroke: \"cornflowerblue\"})\n  ],\n  title: `Probability distribution of sum of ${shape} i.i.d exponential random variables`,\n  y: {label: \"Prob\"},\n  width: 500,\n  height: 300\n})\n\n// Plotting sum of k exp variables\nPlot.plot({\n  marks: [\n    Plot.line(\n      erlang_dist_filtered.map(d => [d.x, d.density]), \n      {stroke: \"cornflowerblue\"})\n  ],\n  title: `Erlang distribution with rate 1/2 and shape ${shape}`,\n  y: {label: \"Prob\"},\n  width: 500,\n  height: 300\n})\n"},{"methodName":"interpretQuiet","source":"shinyInput('shape')"}]}
 </script>
