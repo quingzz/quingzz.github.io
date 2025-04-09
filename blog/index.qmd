@@ -5,5 +5,9 @@ listing:
   type: grid
   sort: "date desc"
   categories: true
+format: 
+  html:
+    embed-resources: true
+    self-contained: true
 comments: false
 ---

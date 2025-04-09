@@ -1,5 +1,6 @@
 ---
 title: Linear Chain Trick crash course
+author: Anh Phan
 date: "2025-04-03"
 resources:
   - /data/erlang_dist.csv
