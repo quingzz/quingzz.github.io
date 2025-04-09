@@ -1,10 +1,10 @@
 ---
 title: "Blog"
 listing:
-  image-placeholder: default_blog_pic.png
   type: grid
   sort: "date desc"
-  categories: true
+  categories: false
+  image-placeholder: default_blog_pic.png
 resources: default_blog_pic.png
 format: 
   html:
