@@ -43,12 +43,12 @@ Traditionally, SIR are formulated using the following ODE
 $$
 \begin{cases}
 dS = - \beta \frac{I}{N} S \\
-dI = \beta \frac{I}{N} S - \mu I \\
-dR = \mu I
+dI = \beta \frac{I}{N} S - \gamma I \\
+dR = \gamma I
 \end{cases}
 $$
 
-With the underlying assumption that the infectious period (time to move from I to R **or** dwell-time in I compartment) is exponentially distributed (with rate $\mu$ and mean infectious time $\frac{1}{\mu}$ ). This was proven to be inadequate to capture many disease dynamics, as such, several formulations were suggested to incorporate other types of distributions.
+With the underlying assumption that the infectious period (time to move from I to R **or** dwell-time in I compartment) is exponentially distributed (with rate $\gamma$ and mean infectious time $\frac{1}{\gamma}$ ). This was proven to be inadequate to capture many disease dynamics, as such, several formulations were suggested to incorporate other types of distributions.
 
 Linear Chain Trick (LCT) in particular, is for modeling **Erlang** distributed infectious period (i.e., Gamma distribution with integer shape).
 
@@ -275,7 +275,7 @@ Visually, we can also see that the distribution for dwell-time of $I_n$ follows 
 
 One of the reason LCT works is the fact that "the sum of $k$ identical, independent exponential random variables with rate $r$ follows $\text{Erlang}(r,k)$ distribution".
 
-To convince this (mostly to myself) visually, we can try computing this and compare it with an Erlang distribution.
+To visualize this, we can try computing distribution of sum using convolution and compare it with an Erlang distribution.
 
 ```{r}
 #| code-fold: true
