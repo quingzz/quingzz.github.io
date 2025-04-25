@@ -42,9 +42,9 @@ Traditionally, SIR are formulated using the following ODE
 
 $$
 \begin{cases}
-dS = - \beta \frac{I}{N} S \\
-dI = \beta \frac{I}{N} S - \gamma I \\
-dR = \gamma I
+\frac{dS}{dt} = - \beta \frac{I}{N} S \\
+\frac{dI}{dt} = \beta \frac{I}{N} S - \gamma I \\
+\frac{dR}{dt} = \gamma I
 \end{cases}
 $$
 
