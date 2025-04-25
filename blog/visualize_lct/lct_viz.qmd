@@ -166,9 +166,12 @@ LCT works by exploiting a property of Poisson processes: the time to $k_{th}$ ev
 Another way to think of it is each event is preceded by a length of time that is exponentially distributed with rate $r$, and thus the time to $k_{th}$ event is the sum of $k$ independent and identical exponential random variables. The distribution of this sum turns out to be the Erlang distribution, with rate $r$ and shape $k$.
 :::
 
-### Implementing LCT in deSolve
+### Implementing LCT
 
 Consider a very simple scenario where there is no incoming population for I (i.e., no `S->I` transition) and the infectious period is Erlang distributed with `rate=1/4` and `shape (k) = 3`
+
+::: panel-tabset
+## deSolve
 
 ```{r warning=FALSE, output=FALSE, message=FALSE}
 #| code-fold: false
@@ -209,6 +212,42 @@ times <- seq(0, simulationDuration)
 ode_mod <- ode(y = desolveInitialValues, times = times, parms = parameters, func = transition_func) 
 ode_mod <- as.data.frame(ode_mod)
 ```
+
+## odin
+
+```{r warning=FALSE, output=FALSE, message=FALSE}
+#| code-fold: false
+#| code-summary: "Model in deSolve"
+library(odin)
+
+model_generator <- odin({
+  deriv(I1) = - rate*I1
+  deriv(I2) = rate*I1 - rate*I2
+  deriv(I3) = rate*I2 - rate*I3
+  deriv(R) = rate*I3
+
+  init_I1 <- user(0)
+  initial(I1) <- init_I1
+
+  rate <- user(1/4)
+
+  initial(I2) <- 0
+  initial(I3) <- 0
+  initial(R) <- 0
+})
+```
+
+```{r}
+#| code-fold: false
+#| code-summary: "Run the model"
+simulationDuration <- 50
+times <- seq(0, simulationDuration)
+
+odin_mod <- model_generator$new(init_I1 = 100, rate = 1/4)
+odin_mod <- odin_mod$run(times)
+odin_mod <- as.data.frame(odin_mod)
+```
+:::
 
 ## Visualization
 
