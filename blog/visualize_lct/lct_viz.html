@@ -29117,7 +29117,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#formulation" id="toc-formulation" class="nav-link" data-scroll-target="#formulation">Formulation</a></li>
   <li><a href="#a-closer-look-at-the-formulation" id="toc-a-closer-look-at-the-formulation" class="nav-link" data-scroll-target="#a-closer-look-at-the-formulation">A closer look at the formulation</a></li>
-  <li><a href="#implementing-lct-in-desolve" id="toc-implementing-lct-in-desolve" class="nav-link" data-scroll-target="#implementing-lct-in-desolve">Implementing LCT in deSolve</a></li>
+  <li><a href="#implementing-lct" id="toc-implementing-lct" class="nav-link" data-scroll-target="#implementing-lct">Implementing LCT</a></li>
   </ul></li>
   <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization">Visualization</a>
   <ul class="collapse">
@@ -29319,9 +29319,13 @@ The property behind LCT
 </div>
 </div>
 </section>
-<section id="implementing-lct-in-desolve" class="level3">
-<h3 class="anchored" data-anchor-id="implementing-lct-in-desolve">Implementing LCT in deSolve</h3>
+<section id="implementing-lct" class="level3">
+<h3 class="anchored" data-anchor-id="implementing-lct">Implementing LCT</h3>
 <p>Consider a very simple scenario where there is no incoming population for I (i.e., no <code>S-&gt;I</code> transition) and the infectious period is Erlang distributed with <code>rate=1/4</code> and <code>shape (k) = 3</code></p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">deSolve</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">odin</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(deSolve)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -29356,6 +29360,38 @@ The property behind LCT
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ode_mod <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">y =</span> desolveInitialValues, <span class="at">times =</span> times, <span class="at">parms =</span> parameters, <span class="at">func =</span> transition_func) </span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ode_mod <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ode_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(odin)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>model_generator <span class="ot">&lt;-</span> <span class="fu">odin</span>({</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I1) <span class="ot">=</span> <span class="sc">-</span> rate<span class="sc">*</span>I1</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I2) <span class="ot">=</span> rate<span class="sc">*</span>I1 <span class="sc">-</span> rate<span class="sc">*</span>I2</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I3) <span class="ot">=</span> rate<span class="sc">*</span>I2 <span class="sc">-</span> rate<span class="sc">*</span>I3</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(R) <span class="ot">=</span> rate<span class="sc">*</span>I3</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  init_I1 <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">0</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I1) <span class="ot">&lt;-</span> init_I1</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  rate <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I2) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I3) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>simulationDuration <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulationDuration)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> model_generator<span class="sc">$</span><span class="fu">new</span>(<span class="at">init_I1 =</span> <span class="dv">100</span>, <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> odin_mod<span class="sc">$</span><span class="fu">run</span>(times)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(odin_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="visualization" class="level2">
@@ -29367,24 +29403,24 @@ The property behind LCT
 <div class="cell">
 <details class="code-fold">
 <summary>Code for plotting</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>i_plot <span class="ot">&lt;-</span> ode_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">I =</span> I1 <span class="sc">+</span> I2 <span class="sc">+</span> I3</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I1, <span class="at">color =</span> <span class="st">&quot;I1&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I2, <span class="at">color =</span> <span class="st">&quot;I2&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I3, <span class="at">color =</span> <span class="st">&quot;I3&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;I1&quot;</span> <span class="ot">=</span> <span class="st">&quot;cornflowerblue&quot;</span>, <span class="st">&quot;I2&quot;</span> <span class="ot">=</span> <span class="st">&quot;darkblue&quot;</span>, <span class="st">&quot;I3&quot;</span> <span class="ot">=</span> <span class="st">&quot;blueviolet&quot;</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">+</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">&quot;Infectious population over time&quot;</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="st">&quot;Time&quot;</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">&quot;Proportion&quot;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>i_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>i_plot <span class="ot">&lt;-</span> ode_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">I =</span> I1 <span class="sc">+</span> I2 <span class="sc">+</span> I3</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I1, <span class="at">color =</span> <span class="st">&quot;I1&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I2, <span class="at">color =</span> <span class="st">&quot;I2&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I3, <span class="at">color =</span> <span class="st">&quot;I3&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> I), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;I1&quot;</span> <span class="ot">=</span> <span class="st">&quot;cornflowerblue&quot;</span>, <span class="st">&quot;I2&quot;</span> <span class="ot">=</span> <span class="st">&quot;darkblue&quot;</span>, <span class="st">&quot;I3&quot;</span> <span class="ot">=</span> <span class="st">&quot;blueviolet&quot;</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">&quot;Infectious population over time&quot;</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="st">&quot;Time&quot;</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">&quot;Proportion&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>i_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -29398,27 +29434,27 @@ The property behind LCT
 <div class="cell">
 <details class="code-fold">
 <summary>Code for plotting</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>gamma_dists <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape1 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">1</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape2 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">2</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape3 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">3</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape1, <span class="at">color=</span><span class="st">&quot;k=1&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape2, <span class="at">color=</span><span class="st">&quot;k=2&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape3, <span class="at">color=</span><span class="st">&quot;k=3&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;k=1&quot;</span> <span class="ot">=</span> <span class="st">&quot;cornflowerblue&quot;</span>, <span class="st">&quot;k=2&quot;</span> <span class="ot">=</span> <span class="st">&quot;darkblue&quot;</span>, <span class="st">&quot;k=3&quot;</span> <span class="ot">=</span> <span class="st">&quot;blueviolet&quot;</span>)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">+</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Time&quot;</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Probability&quot;</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Erlang distribution with rate=1/4&quot;</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>i_plot <span class="sc">/</span> gamma_dists</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>gamma_dists <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape1 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">1</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape2 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">2</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape3 =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>), <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">3</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape1, <span class="at">color=</span><span class="st">&quot;k=1&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape2, <span class="at">color=</span><span class="st">&quot;k=2&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>shape3, <span class="at">color=</span><span class="st">&quot;k=3&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;k=1&quot;</span> <span class="ot">=</span> <span class="st">&quot;cornflowerblue&quot;</span>, <span class="st">&quot;k=2&quot;</span> <span class="ot">=</span> <span class="st">&quot;darkblue&quot;</span>, <span class="st">&quot;k=3&quot;</span> <span class="ot">=</span> <span class="st">&quot;blueviolet&quot;</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Time&quot;</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Probability&quot;</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Erlang distribution with rate=1/4&quot;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>i_plot <span class="sc">/</span> gamma_dists</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -29437,98 +29473,98 @@ The property behind LCT
 <div class="cell">
 <details class="code-fold">
 <summary>Function to compute sum of k i.i.d. exp variables</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>compute_dist_sum_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">rate=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">k=</span><span class="dv">2</span>, <span class="at">n =</span> <span class="dv">100</span>){</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># divide by k so sum of k identical distribution can go up to n</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  x_range <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, n<span class="sc">/</span>k, <span class="at">by=</span><span class="fl">0.05</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  curr_density <span class="ot">&lt;-</span> <span class="fu">dexp</span>(x_range, <span class="at">rate =</span> rate)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(k<span class="sc">&gt;</span><span class="dv">1</span>){</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sapply</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="dv">2</span><span class="sc">:</span>k,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      \(curr_k){</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute distribution of sum of 2 exponential random variable using convolution</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        curr_density <span class="ot">&lt;&lt;-</span> <span class="fu">convolve</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>          curr_density,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>          <span class="fu">rev</span>(<span class="fu">dexp</span>(x_range, <span class="at">rate =</span> rate)),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">type =</span> <span class="st">&quot;open&quot;</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># adjust x_range for length of the convolution </span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        x_range <span class="ot">&lt;&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, n<span class="sc">/</span>k, <span class="at">length.out =</span> <span class="fu">length</span>(curr_density))</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="at">length.out =</span> <span class="fu">length</span>(curr_density)),</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">density =</span> curr_density<span class="sc">/</span><span class="fu">sum</span>(curr_density)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>compute_dist_sum_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">rate=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">k=</span><span class="dv">2</span>, <span class="at">n =</span> <span class="dv">100</span>){</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># divide by k so sum of k identical distribution can go up to n</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  x_range <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, n<span class="sc">/</span>k, <span class="at">by=</span><span class="fl">0.05</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  curr_density <span class="ot">&lt;-</span> <span class="fu">dexp</span>(x_range, <span class="at">rate =</span> rate)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(k<span class="sc">&gt;</span><span class="dv">1</span>){</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sapply</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="dv">2</span><span class="sc">:</span>k,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      \(curr_k){</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute distribution of sum of 2 exponential random variable using convolution</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        curr_density <span class="ot">&lt;&lt;-</span> <span class="fu">convolve</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>          curr_density,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>          <span class="fu">rev</span>(<span class="fu">dexp</span>(x_range, <span class="at">rate =</span> rate)),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">type =</span> <span class="st">&quot;open&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># adjust x_range for length of the convolution </span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        x_range <span class="ot">&lt;&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, n<span class="sc">/</span>k, <span class="at">length.out =</span> <span class="fu">length</span>(curr_density))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="at">length.out =</span> <span class="fu">length</span>(curr_density)),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">density =</span> curr_density<span class="sc">/</span><span class="fu">sum</span>(curr_density)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>For this demonstration, <code>rate = 1/2</code> is used, while value for <span class="math inline">\(k\)</span> (i.e. shape of Erlang) can be adjusted below.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Compute data for plotting</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    \(curr_k){</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">compute_dist_sum_exp</span>(<span class="at">k=</span>curr_k) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(x<span class="sc">&lt;=</span>n) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">k=</span>curr_k)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    \(curr_k){</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="fl">0.05</span>),</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">density =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="fl">0.05</span>), <span class="at">rate=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">shape=</span>curr_k)</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># normalize</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">density =</span> density<span class="sc">/</span><span class="fu">sum</span>(density),</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">k =</span> curr_k</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(sum_k_exp, <span class="st">&quot;./data/sum_k_exp.csv&quot;</span>)</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(erlang_dist, <span class="st">&quot;./data/erlang_dist.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    \(curr_k){</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">compute_dist_sum_exp</span>(<span class="at">k=</span>curr_k) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(x<span class="sc">&lt;=</span>n) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">k=</span>curr_k)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    \(curr_k){</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="fl">0.05</span>),</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">density =</span> <span class="fu">dgamma</span>(<span class="fu">seq</span>(<span class="dv">0</span>, n, <span class="fl">0.05</span>), <span class="at">rate=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">shape=</span>curr_k)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># normalize</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">density =</span> density<span class="sc">/</span><span class="fu">sum</span>(density),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">k =</span> curr_k</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(sum_k_exp, <span class="st">&quot;./data/sum_k_exp.csv&quot;</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(erlang_dist, <span class="st">&quot;./data/erlang_dist.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="354" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 353;"><span id="cb7-354"><a href="#cb7-354" aria-hidden="true" tabindex="-1"></a>Plot <span class="op">=</span> <span class="im">import</span>(<span class="st">&quot;https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm&quot;</span>)</span>
-<span id="cb7-355"><a href="#cb7-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-356"><a href="#cb7-356" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/sum_k_exp.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
-<span id="cb7-357"><a href="#cb7-357" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/erlang_dist.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
-<span id="cb7-358"><a href="#cb7-358" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-359"><a href="#cb7-359" aria-hidden="true" tabindex="-1"></a><span class="co">// Slider to change shape (k)</span></span>
-<span id="cb7-360"><a href="#cb7-360" aria-hidden="true" tabindex="-1"></a>viewof shape <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">7</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Shape of Erlang&quot;</span>})</span>
-<span id="cb7-361"><a href="#cb7-361" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-362"><a href="#cb7-362" aria-hidden="true" tabindex="-1"></a>sum_k_exp_filtered <span class="op">=</span> sum_k_exp<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
-<span id="cb7-363"><a href="#cb7-363" aria-hidden="true" tabindex="-1"></a>erlang_dist_filtered <span class="op">=</span> erlang_dist<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
-<span id="cb7-364"><a href="#cb7-364" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-365"><a href="#cb7-365" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-366"><a href="#cb7-366" aria-hidden="true" tabindex="-1"></a><span class="co">// Plotting sum of k exp variables</span></span>
-<span id="cb7-367"><a href="#cb7-367" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb7-368"><a href="#cb7-368" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb7-369"><a href="#cb7-369" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb7-370"><a href="#cb7-370" aria-hidden="true" tabindex="-1"></a>      sum_k_exp_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
-<span id="cb7-371"><a href="#cb7-371" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
-<span id="cb7-372"><a href="#cb7-372" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb7-373"><a href="#cb7-373" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Probability distribution of sum of </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs"> i.i.d exponential random variables`</span><span class="op">,</span></span>
-<span id="cb7-374"><a href="#cb7-374" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
-<span id="cb7-375"><a href="#cb7-375" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
-<span id="cb7-376"><a href="#cb7-376" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
-<span id="cb7-377"><a href="#cb7-377" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="393" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 392;"><span id="cb9-393"><a href="#cb9-393" aria-hidden="true" tabindex="-1"></a>Plot <span class="op">=</span> <span class="im">import</span>(<span class="st">&quot;https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm&quot;</span>)</span>
+<span id="cb9-394"><a href="#cb9-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-395"><a href="#cb9-395" aria-hidden="true" tabindex="-1"></a>sum_k_exp <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/sum_k_exp.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
+<span id="cb9-396"><a href="#cb9-396" aria-hidden="true" tabindex="-1"></a>erlang_dist <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">&quot;data/erlang_dist.csv&quot;</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span><span class="kw">true</span>})</span>
+<span id="cb9-397"><a href="#cb9-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-398"><a href="#cb9-398" aria-hidden="true" tabindex="-1"></a><span class="co">// Slider to change shape (k)</span></span>
+<span id="cb9-399"><a href="#cb9-399" aria-hidden="true" tabindex="-1"></a>viewof shape <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">7</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Shape of Erlang&quot;</span>})</span>
+<span id="cb9-400"><a href="#cb9-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-401"><a href="#cb9-401" aria-hidden="true" tabindex="-1"></a>sum_k_exp_filtered <span class="op">=</span> sum_k_exp<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
+<span id="cb9-402"><a href="#cb9-402" aria-hidden="true" tabindex="-1"></a>erlang_dist_filtered <span class="op">=</span> erlang_dist<span class="op">.</span><span class="fu">filter</span>(row <span class="kw">=&gt;</span> row<span class="op">.</span><span class="at">k</span> <span class="op">===</span> shape)</span>
+<span id="cb9-403"><a href="#cb9-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-404"><a href="#cb9-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-405"><a href="#cb9-405" aria-hidden="true" tabindex="-1"></a><span class="co">// Plotting sum of k exp variables</span></span>
+<span id="cb9-406"><a href="#cb9-406" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb9-407"><a href="#cb9-407" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb9-408"><a href="#cb9-408" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb9-409"><a href="#cb9-409" aria-hidden="true" tabindex="-1"></a>      sum_k_exp_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
+<span id="cb9-410"><a href="#cb9-410" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
+<span id="cb9-411"><a href="#cb9-411" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb9-412"><a href="#cb9-412" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Probability distribution of sum of </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs"> i.i.d exponential random variables`</span><span class="op">,</span></span>
+<span id="cb9-413"><a href="#cb9-413" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
+<span id="cb9-414"><a href="#cb9-414" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
+<span id="cb9-415"><a href="#cb9-415" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
+<span id="cb9-416"><a href="#cb9-416" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -29578,17 +29614,17 @@ The property behind LCT
 </div>
 </div>
 </div>
-<div class="sourceCode cell-code hidden" id="cb8" data-startfrom="380" data-source-offset="-804"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 379;"><span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a>      erlang_dist_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
-<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
-<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb8-386"><a href="#cb8-386" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Erlang distribution with rate 1/2 and shape </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs">`</span><span class="op">,</span></span>
-<span id="cb8-387"><a href="#cb8-387" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
-<span id="cb8-388"><a href="#cb8-388" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
-<span id="cb8-389"><a href="#cb8-389" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
-<span id="cb8-390"><a href="#cb8-390" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="419" data-source-offset="-804"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 418;"><span id="cb10-419"><a href="#cb10-419" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb10-420"><a href="#cb10-420" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-421"><a href="#cb10-421" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb10-422"><a href="#cb10-422" aria-hidden="true" tabindex="-1"></a>      erlang_dist_filtered<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> [d<span class="op">.</span><span class="at">x</span><span class="op">,</span> d<span class="op">.</span><span class="at">density</span>])<span class="op">,</span> </span>
+<span id="cb10-423"><a href="#cb10-423" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;cornflowerblue&quot;</span>})</span>
+<span id="cb10-424"><a href="#cb10-424" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb10-425"><a href="#cb10-425" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="vs">`Erlang distribution with rate 1/2 and shape </span><span class="sc">${</span>shape<span class="sc">}</span><span class="vs">`</span><span class="op">,</span></span>
+<span id="cb10-426"><a href="#cb10-426" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Prob&quot;</span>}<span class="op">,</span></span>
+<span id="cb10-427"><a href="#cb10-427" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span></span>
+<span id="cb10-428"><a href="#cb10-428" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span></span>
+<span id="cb10-429"><a href="#cb10-429" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-8" data-nodetype="expression">
