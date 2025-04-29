@@ -4134,7 +4134,7 @@ window.Quarto = {
 \]</span></p>
 <p>The underlying assumptions being:</p>
 <ul>
-<li><p>Infected have a constant rate of dying/recovering (with infectious period being <span class="math inline">\(\frac{1}{\gamma + \mu}\)</span>)</p></li>
+<li><p>Infectious population have a constant rate of dying/recovering (with mean infectious period being <span class="math inline">\(\frac{1}{\gamma + \mu}\)</span>)</p></li>
 <li><p>Amongst those exited the <span class="math inline">\(I\)</span> compartment, <span class="math inline">\(\frac{\gamma}{\gamma + \mu}\)</span> will recover while <span class="math inline">\(\frac{\mu}{\gamma + \mu}%=\)</span> will die (i.e. proportion that end up in R and D are determined by their rates).</p></li>
 </ul>
 <p>In this formulation, we can view the infectious period as a “race” between 2 events: either transition to R or to D. In other words, these 2 transitions can also be referred to as <u>competing risks</u>.</p>
@@ -4254,7 +4254,7 @@ P(T_{I \rightarrow R, D} \leq t) = P(T_{I\rightarrow D} \leq t \text{ or } T_{I\
 <p>So how would the formulation after adding another D compartment as a competing risk look like? To answer this, we must consider the assumptions for <span class="math inline">\(I \rightarrow D\)</span> transitions. The 2 scenarios that will be discussed here are:</p>
 <ul>
 <li><p>Time for <span class="math inline">\(I \rightarrow D\)</span> is exponentially distributed <span class="math inline">\(T_{I \rightarrow D} \sim \text{Exponential}(\mu)\)</span></p></li>
-<li><p>Time for <span class="math inline">\(I \rightarrow D\)</span> is Gamma distributed <span class="math inline">\(T_{I \rightarrow D} \sim \text{Erlang}(\mu, j)\)</span></p></li>
+<li><p>Time for <span class="math inline">\(I \rightarrow D\)</span> is Erlang distributed <span class="math inline">\(T_{I \rightarrow D} \sim \text{Erlang}(\mu, j)\)</span></p></li>
 </ul>
 <section id="exponentially-distributed-t_i-rightarrow-d" class="level4" data-number="3.1.1">
 <h4 data-number="3.1.1" class="anchored" data-anchor-id="exponentially-distributed-t_i-rightarrow-d"><span class="header-section-number">3.1.1</span> Exponentially distributed <span class="math inline">\(T_{I \rightarrow D}\)</span></h4>
