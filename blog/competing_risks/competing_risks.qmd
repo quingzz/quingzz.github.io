@@ -27,7 +27,7 @@ $$
 
 The underlying assumptions being:
 
--   Infected have a constant rate of dying/recovering (with infectious period being $\frac{1}{\gamma + \mu}$)
+-   Infectious population have a constant rate of dying/recovering (with mean infectious period being $\frac{1}{\gamma + \mu}$)
 
 -   Amongst those exited the $I$ compartment, $\frac{\gamma}{\gamma + \mu}$ will recover while $\frac{\mu}{\gamma + \mu}%=$ will die (i.e. proportion that end up in R and D are determined by their rates).
 
@@ -179,7 +179,7 @@ So how would the formulation after adding another D compartment as a competing r
 
 -   Time for $I \rightarrow D$ is exponentially distributed $T_{I \rightarrow D} \sim \text{Exponential}(\mu)$
 
--   Time for $I \rightarrow D$ is Gamma distributed $T_{I \rightarrow D} \sim \text{Erlang}(\mu, j)$
+-   Time for $I \rightarrow D$ is Erlang distributed $T_{I \rightarrow D} \sim \text{Erlang}(\mu, j)$
 
 #### Exponentially distributed $T_{I \rightarrow D}$
 
