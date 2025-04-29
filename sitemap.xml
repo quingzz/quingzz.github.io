@@ -2,14 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://quingzz.github.io/index.html</loc>
-    <lastmod>2025-04-25T09:23:57.188Z</lastmod>
-  </url>
-  <url>
-    <loc>https://quingzz.github.io/blog/visualize_lct/lct_viz.html</loc>
-    <lastmod>2025-04-25T09:23:57.188Z</lastmod>
+    <lastmod>2025-04-29T10:43:23.243Z</lastmod>
   </url>
   <url>
     <loc>https://quingzz.github.io/blog/index.html</loc>
-    <lastmod>2025-04-25T09:23:57.175Z</lastmod>
+    <lastmod>2025-04-29T10:43:23.230Z</lastmod>
+  </url>
+  <url>
+    <loc>https://quingzz.github.io/blog/visualize_lct/lct_viz.html</loc>
+    <lastmod>2025-04-29T10:43:23.243Z</lastmod>
+  </url>
+  <url>
+    <loc>https://quingzz.github.io/blog/competing_risks/competing_risks.html</loc>
+    <lastmod>2025-04-29T10:43:23.227Z</lastmod>
   </url>
 </urlset>
