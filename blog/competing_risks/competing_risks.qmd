@@ -198,7 +198,7 @@ $$
 \end{cases}
 $$
 
-Another way to look at the formulation is that at every compartment $I_{n}$, there is a "race" between $I_n \rightarrow I_{n+1}$ transition (or $I_n \rightarrow R$ when $n = k$) and $I_n \rightarrow D$ transition.
+Another way to think of the formulation is that at every compartment $I_{n}$, there is a "race" between $I_n \rightarrow I_{n+1}$ transition (or $I_n \rightarrow R$ when $n = k$) and $I_n \rightarrow D$ transition.
 
 #### Erlang distributed $T_{I \rightarrow D}$
 
@@ -206,11 +206,11 @@ Given transition $I \rightarrow R$ where $T_{I \rightarrow R} \sim \text{Erlang}
 
 To model $I \rightarrow D$ and $I \rightarrow R$ as competing risks where both $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$ are Erlang distributed, we can model them as a "race" between 2 Poisson processes.
 
-Consider the simplest case where $T_{I \rightarrow R} \sim \text{Erlang}(\gamma, 2)$, $T_{I \rightarrow D} \sim \text{Erlang}(\mu, 2)$, the SIRD model now look as followed.
+Consider the simplest case where $T_{I \rightarrow R} \sim \text{Erlang}(\gamma, 2)$, $T_{I \rightarrow D} \sim \text{Erlang}(\mu, 2)$.
 
 ```{=html}
 <details>
-  <summary> Thought process behind the formula </summary>
+  <summary> Thought process for constructing the formula </summary>
 ```
 ***Establishing the problem***
 
@@ -250,45 +250,47 @@ The flowchart of sub-states within $I$ compartment can be represented as followe
 
 ::: columns
 ::: {.column width="40%"}
-![](imgs/lct_flowchart.jpg){width="269"}
+![](imgs/lct_flowchart.png){width="269"}
 :::
 
 ::: {.column width="60%"}
+Sub-states of $I$: $I_{i,j}$ denotes the sub-population awaiting for: $i_{th}$ event of $I \rightarrow R$ (i.e. $I \rightarrow R (i)$) [OR]{.underline} $j_{th}$ event of $I \rightarrow R$ (i.e. $I \rightarrow D (j)$)
+
 Description of the flowchart:
 
--   All incoming population for compartment $I$ flows into $I_1$ and awaiting for: $I \rightarrow R(1)$ or $I \rightarrow D(1)$.
+-   All incoming population for compartment $I$ flows into $I_{1,1}$ and awaiting for: $I \rightarrow R(1)$ or $I \rightarrow D(1)$.
 
--   $I_{1,R}$ and $I_{1,D}$ represent the 2 outcomes of event 1, where:
+-   $I_{1,2}$ and $I_{2,1}$ represent the 2 outcomes of event 1, where:
 
-    -   $I_{1,R}$ are individuals from $I_1$ that went through $I \rightarrow R(1)$ and awaiting: $I \rightarrow R(2)$ or $I \rightarrow D(2)$
+    -   $I_{2,1}$ are individuals from $I_{1,1}$ that experienced $I \rightarrow R(1)$ and awaiting: $I \rightarrow R(2)$ or $I \rightarrow D(1)$
 
-    -   $I_{1,D}$ are individuals from $I_1$ that went through $I \rightarrow D(1)$ and awaiting: $I \rightarrow D(2)$ or $I \rightarrow R(2)$
+    -   $I_{1,D}$ are individuals from $I_{1,1}$ that experienced $I \rightarrow D(1)$ and awaiting: $I \rightarrow D(2)$ or $I \rightarrow R(1)$
 
--   $I_2$ is another latent space where:
+-   $I_{2,2}$ is another latent space where:
 
-    -   The incoming individuals are: $I_{1,R}$ that went through $I \rightarrow D(2)$ [AND]{.underline} $I_{1,D}$ that went through $I \rightarrow R(2)$.
+    -   The incoming individuals are: $I_{2,1}$ that experienced $I \rightarrow D(1)$ [AND]{.underline} $I_{1,2}$ that experienced $I \rightarrow R(1)$.
 
     -   And awaiting: $I \rightarrow D(2)$ or $I \rightarrow R(2)$
 
--   $I_{2,R}$ and $I_{2,D}$ are the end point of the 2 Poisson processes, which are equivalent to transitioning to $R$ and $D$ respectively.
+-   Since $I \rightarrow D(2)$ and $I \rightarrow R(2)$ are the end point of the 2 Poisson processes, which are equivalent to transitioning to $R$ and $D$ respectively.
 :::
 :::
 
-Intuitive understanding for $I_{1,R}$, $I_{1,D}$ and $I_2$:
+Intuitive understanding for $I_{1,2}$, $I_{2,1}$ and $I_{2,2}$:
 
--   $I_{1,R}$ can be understood as individuals set out to complete $I \rightarrow R$ process. Under the case that $I \rightarrow D(2)$ happen first, individuals in $I_{1,R}$ must wait for another time period. This extra time period is what $I_2$ are for.
+-   $I_{2,1}$ can be understood as individuals set out to complete $I \rightarrow R$ process. Under the case that $I \rightarrow D(1)$ happen before $I \rightarrow R(2)$, individuals in $I_{2,1}$ must wait for another time period. This extra time period is what $I_{2,2}$ are for.
 
--   Similar reasoning can be applied for $I_{1,D}$
+-   Similar reasoning can be applied for $I_{1,2}$
 
 ***Constructing the mean field ODE system***
 
 With the flowchart presented, the remaining process is relatively straightforward when we consider what we have established so far:
 
--   $\text{min}(T_{I \rightarrow R (i)}, T_{I \rightarrow D (i)}) \sim \text{Exponential}(\gamma + \mu)$ (refer to @tip-minexp).
-
 -   $T_{I \rightarrow R (i)} \sim \text{Exponential}(\gamma)$
 
 -   $T_{I \rightarrow D (i)} \sim \text{Exponential}(\mu)$
+
+-   $\text{min}(T_{I \rightarrow R (i)}, T_{I \rightarrow D (i)}) \sim \text{Exponential}(\gamma + \mu)$ (refer to @tip-minexp).
 
 </details>
 
@@ -297,16 +299,41 @@ The mean field ODE for this scenario is as followed
 $$
 \begin{cases}
 \frac{dS}{dt} = -\frac{\beta I S}{N} \\
-\frac{dI_{1}}{dt} = \frac{\beta I S}{N} - (\gamma + \mu)I_{1} \\
-\frac{dI_{1,R}}{dt} = \gamma I_1 - (\gamma + \mu)I_{1,R} \\
-\frac{dI_{1,D}}{dt} = \mu I_1 - (\gamma + \mu)I_{1,D} \\
-\frac{dI_{2}}{dt} =  \mu I_{1,R} + \gamma I_{1,D} - (\gamma + \mu)I_2 \\
-\frac{dR}{dt} = \gamma I_{1,R} + \gamma I_2 \\
-\frac{dD}{dt} = \mu I_{1,D} + \mu I_2
+\frac{dI_{1,1}}{dt} = \frac{\beta I S}{N} - (\gamma + \mu)I_{1,1} \\
+\frac{dI_{2,1}}{dt} = \gamma I_{1,1} - (\gamma + \mu)I_{2,1} \\
+\frac{dI_{1,2}}{dt} = \mu I_{1,1} - (\gamma + \mu)I_{1,2} \\
+\frac{dI_{2,2}}{dt} =  \mu I_{2,1} + \gamma I_{1,2} - (\gamma + \mu)I_{2,2} \\
+\frac{dR}{dt} = \gamma I_{2,1} + \gamma I_{2,2} \\
+\frac{dD}{dt} = \mu I_{1,2} + \mu I_{2,2}
 \end{cases}
 $$
 
-The generalized system of ODE for $n$ competing risks with rates $r = \{r_1, r_2, ...,r_n\}$ and shape $k = \{k_1, k_2,..,k_n\}$
+A generalized formulation for $\frac{dI_{i,j}}{dt}$, $\frac{dR}{dt}$, $\frac{dD}{dt}$ can be generalized as followed
+
+$$
+dI_{i,j} = \gamma I_{i-1, j} + \mu I_{i, j-1} - (\gamma + \mu) I_{i,j}
+$$
+
+$$
+\frac{dR}{dt} = \gamma \sum_{a=1}^m I_{n-1, a}
+$$
+
+$$
+\frac{dD}{dt} = \mu\sum_{b=1}^n I_{b, m-1}
+$$
+
+Where:
+
+-   $m$ is the shape parameter for distribution of $T_{I\rightarrow D}$
+
+-   $n$ is the shape parameter for distribution of $T_{I\rightarrow R}$
+
+```{=html}
+<!-- -->
+```
+-   $I_{i, j} = 0$ when $i = 0$ or $j = 0$
+
+-   $i<=n$ and $j \leq m$
 
 TODO://
 
