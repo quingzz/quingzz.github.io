@@ -12,7 +12,9 @@ format:
     self-contained: true
 ---
 
-## Competing risks in SIRD
+## Intro to competing risks 
+
+### Basic scenario in SIRD
 
 In many situations, we may want to have a compartmental model where the population can transition from one state to multiple states. One classic example of this is the SIRD model.
 
@@ -50,7 +52,7 @@ P(T_{I \rightarrow R, D} \leq t) = P(T_{I\rightarrow D} \leq t \text{ or } T_{I\
 We can then derive to the conclusion above, which states the infectious is exponentially distributed, with rate $\gamma + \mu$ and mean transition time $\frac{1}{\gamma + \mu}$.
 :::
 
-## Implementation
+### Implementation
 
 The following example implements SIRD model using odin R package
 
@@ -62,7 +64,7 @@ library(tidyverse)
 ```{r message=FALSE, warning=FALSE}
 #| code-fold: true
 #| code-summary: "Helper function for plotting SIRD model"
-plot_sird <- function(data){
+plot_sird <- function(data, ylab="Proportion"){
   data %>% 
     ggplot() +
       geom_line(aes(x = t, y = S, color = "S")) +
@@ -75,13 +77,17 @@ plot_sird <- function(data){
       labs(
         title = "Model output",
         x = "Time",
-        y = "Proportion"
+        y = ylab
       )
 }
 ```
 
 ```{r message=FALSE, warning=FALSE}
-model_generator <- odin({
+#| label: fig-basic-sird
+#| fig-cap: "Basic SIRD"
+
+# ---- Model definition using odin ---
+model_generator <- odin::odin({
   # ODE in odin syntax
   deriv(S) <- - beta * (I/N) * S
   deriv(I) <- beta * (I/N) * S - (gamma + mu)*I
@@ -108,16 +114,16 @@ simulationDuration <- 50
 times <- seq(0, simulationDuration)
 
 # --- initialize model with init values ---- 
-odin_mod <- model_generator$new(
+basic_sird <- model_generator$new(
   init_S = 1000, 
   init_I = 50)
 
 # --- run model and plot ---- 
-odin_mod <- odin_mod$run(times) %>% as.data.frame()
-plot_sird(odin_mod)
+basic_sird <- basic_sird$run(times) %>% as.data.frame()
+plot_sird(basic_sird)
 ```
 
-```{r include=FALSE}
+```{r include=FALSE, eval=FALSE}
 library(odin)
 
 model_generator <- odin({
@@ -156,9 +162,9 @@ odin_mod <- odin_mod$run(times) %>% as.data.frame() %>% mutate(I = IR + ID)
 plot_sird(odin_mod)
 ```
 
-## Competing risks with other transition time distributions
+## Competing risks with Linear Chain Trick
 
-### Erlang via Linear Chain Trick
+### Revisit Linear Chain Trick
 
 As previously mentioned in [another blog](https://quingzz.github.io/blog/visualize_lct/lct_viz.html), Erlang distributed infectious period can be modeled using Linear Chain Trick.
 
@@ -181,7 +187,7 @@ So how would the formulation after adding another D compartment as a competing r
 
 -   Time for $I \rightarrow D$ is Erlang distributed $T_{I \rightarrow D} \sim \text{Erlang}(\mu, j)$
 
-#### Exponentially distributed $T_{I \rightarrow D}$
+### Exponentially distributed $T_{I \rightarrow D}$
 
 Consider the original formulation $\frac{dD}{dt} = \mu I$, after applying LCT $I$ is now the sum of $I_n$ sub-compartments i.e., $\frac{dD}{dt} = \mu\sum_{n=1}^k I_n$.
 
@@ -200,7 +206,7 @@ $$
 
 Another way to think of the formulation is that at every compartment $I_{n}$, there is a "race" between $I_n \rightarrow I_{n+1}$ transition (or $I_n \rightarrow R$ when $n = k$) and $I_n \rightarrow D$ transition.
 
-#### Erlang distributed $T_{I \rightarrow D}$
+### Erlang distributed $T_{I \rightarrow D}$
 
 Given transition $I \rightarrow R$ where $T_{I \rightarrow R} \sim \text{Erlang}(\gamma, k)$, $T_{I \rightarrow R}$ can be thought of as the time to $k_{th}$ event of a homogenous Poisson process with rate $\gamma$ [@hurtado2019].
 
@@ -308,7 +314,7 @@ $$
 \end{cases}
 $$
 
-A generalized formulation for $\frac{dI_{i,j}}{dt}$, $\frac{dR}{dt}$, $\frac{dD}{dt}$ can be generalized as followed
+A generalized formulation for $\frac{dI_{i,j}}{dt}$, $\frac{dR}{dt}$, $\frac{dD}{dt}$ is as followed
 
 $$
 dI_{i,j} = \gamma I_{i-1, j} + \mu I_{i, j-1} - (\gamma + \mu) I_{i,j}
@@ -335,9 +341,407 @@ Where:
 
 -   $i<=n$ and $j \leq m$
 
-TODO://
+### Implementation
 
-### Arbitrary transition time distribution
+Implementation for the scenario where $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$ are Erlang distributed in odin
+
+```{r}
+#| label: fig-lct-sird
+#| fig-cap: "SIRD with LCT"
+sird_lct <- odin({
+  # ODE in odin syntax
+  deriv(S) <- - beta * ((I11 + I12 + I21 + I22)/N) * S
+  deriv(I11) <- beta * ((I11 + I12 + I21 + I22)/N) * S - (gamma + mu)*I11
+  deriv(I12) <- mu*I11 - (gamma + mu)*I12
+  deriv(I21) <- gamma*I11 - (gamma + mu)*I21
+  deriv(I22) <- gamma*I12 + mu*I21 - (gamma + mu)*I22
+  deriv(R) <- gamma*I21 + gamma*I22
+  deriv(D) <- mu*I12 + mu*I22
+
+  # input parameters
+  init_S <- user(0)
+  init_I <- user(0)
+  beta <- user(0.4)
+  gamma <- user(0.2)
+  mu <- user(0.1)
+  
+  # initialize values
+  N <- init_S + init_I
+  initial(S) <- init_S
+  initial(I11) <- init_I
+  initial(I12) <- 0
+  initial(I21) <- 0
+  initial(I22) <- 0
+  initial(R) <- 0
+  initial(D) <- 0
+})
+
+# --- initialize simulation time ---- 
+simulationDuration <- 50
+times <- seq(0, simulationDuration)
+
+# --- initialize model with init values ---- 
+odin_mod <- sird_lct$new(
+  init_S = 999, 
+  init_I = 1)
+
+# --- run model and plot ---- 
+odin_mod <- odin_mod$run(times) %>% 
+  as.data.frame() %>% 
+  mutate(
+    I = I11 + I12 + I21 + I22
+  )
+plot_sird(odin_mod)
+```
+
+## Generalized transition time distribution
+
+There have been several methods proposed to handle arbitrary dwell time distribution in compartmental model, using delay-integro differential equations or delay differential equation (DDE).
+
+This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks.
+
+### Competing risks in terms of survival function
+
+Consider the scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
+
+Some annotations and indications within the context of compartmental model:
+
+-   $f(t)$ is the probability distribution function (PDF) - indicate the instantaneous probability that an individual leave the compartment at time $t$.
+
+-   $S(t)$ is the survival function - indicate the probability that an individual still stay in the compartment at time $t$. It is worth pointing out that $f(t) = -\frac{d}{dt}S(t)$.
+
+-   $h(t)$ is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time $t$. (i.e., $h(t) = \frac{f(t)}{S(t)}$)
+
+-   The subset of function annotation denotes which event this function is for. For example, $f_{X \rightarrow O_1}(t)$ refers to the PDF for the $X \rightarrow O_1$ transition.
+
+The survival function for leaving $X$ (denoted $S_X (t)$) is the product of survival functions for all $X \rightarrow O_i$.
+
+$$
+S_X(t) = \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)
+$$
+
+::: {.callout-note collapse="true"}
+## Why the overall survival function looks like that?
+
+Recall that $S_X(1)$ is equivalent to $P(T_X > t)$ (i.e. probability that individual have not left $X$ compartment at time $t$).
+
+$$
+P(T_X > t) = P(T_{X\rightarrow O_1} > t, T_{X\rightarrow O_2} > t, ..., T_{X\rightarrow O_n} > t)
+$$
+
+Under the assumption that these competing risks are independent
+
+$$
+P(T_X > t) = P(T_{X\rightarrow O_1} > t) * P(T_{X\rightarrow O_2} > t) * ...*P( T_{X\rightarrow O_n} > t)
+$$
+
+$$
+P(T_X > t) = \prod_{i=1}^n P(T_{X \rightarrow O_i} >t)
+$$
+:::
+
+The hazard function for leaving $X$ can then be represented as.
+
+$$
+h_X(t) = \frac{-\frac{d}{dt} S_X(t)}{S_X(t)} = \frac{-\frac{d}{dt} \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
+$$
+
+After a few steps of simplifying the function, we will eventually arrive at the following.
+
+$$
+h_X(t) = \sum_{i = 1}^n\frac{ f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)}
+$$
+
+::: {.callout-note collapse="true"}
+#### Simplifying $h_X(t)$
+
+$$
+h_X(t) = \frac{-\frac{d}{dt} \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
+$$
+
+By applying the product rule for differentiation, we have
+
+$$
+h_X(t) = \frac{-\sum_{i = 1}^n \frac{d}{dt} S_{X \rightarrow O_i}(t) * \prod^{n, n \neq i}_{j=1} S_{X \rightarrow O_j}(t) }{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
+$$
+
+Where $\prod^{n, n \neq i}_{j=1} S_{X \rightarrow O_j}(t)$ denotes product of $S_{X \rightarrow O_j}(t)$ where $j$ ranges from $1$ to $n$ [and]{.underline} $j \neq i$. (i.e., $j \in \{1,2,3, ..., n\} \setminus \{i\}$)
+
+Recall that $f(t) = -\frac{d}{dt}S(t)$
+
+We can then rewrite $h_{X}(t)$ as followed
+
+$$
+h_X(t) = -\sum_{i = 1}^n\frac{ -f_{X \rightarrow O_i}(t) * \prod^{n, n \neq i}_{j=1} S_{X \rightarrow O_j}(t) }{\prod_{k = 1}^{n} S_{X \rightarrow O_k}(t)}
+$$
+
+Since $\frac{\prod^{n, n \neq i}_{j=1} S_{X \rightarrow O_j}(t) }{\prod_{k = 1}^{n} S_{X \rightarrow O_k}(t)} = \frac{\prod^{n, n \neq i}_{j=1} S_{X \rightarrow O_j}(t)}{S_{X \rightarrow O_i}(t)*\prod^{n, n \neq i}_{k=1} S_{X \rightarrow O_k}(t)} = \frac{1}{S_{X \rightarrow O_i}(t)}$
+
+We can further simplify $h_X(t)$ as
+
+$$
+h_X(t) = 
+-\sum_{i = 1}^n\frac{ -f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)} = 
+\sum_{i = 1}^n\frac{f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)} =
+\sum_{i=1}^n h_{X \rightarrow O_i}(t)
+$$
+:::
+
+#### Okay? so what does all this mean?
+
+The takeaway point here is that the hazard function of leaving $X$ compartment can be rewritten in terms of the hazard function of each competing risk $X \rightarrow O_i$.
+
+That is to say, we can simulate the dynamics of $X$ compartment numerically if we:
+
+-   Know the PDF (or CDF) of each competing $X \rightarrow O_i$ transition.
+
+-   [OR]{.underline}, a good estimation for the probability distribution of time for $X \rightarrow O_i$ transition, from which an estimation for cumulative probability can be computed (thus hazard rate can be inferred).
+
+Where the system of derivatives to describe the dynamics of $X$ and $O_i$ is as followed
+
+$$
+\begin{cases}
+\frac{dX(t)}{dt} = - \int_{0}^{\tau} h_X(\tau)*X(t, \tau) d\tau \\
+\frac{dO_1(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
+\vdots \\
+\frac{dO_n(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
+\end{cases}
+$$
+
+Where:
+
+-   $\tau$ denotes the time-since-entering the $X$ compartment.
+
+-   $X(t, \tau)$ denotes the sub-population of $X$ at time $t$ that have stayed for $\tau$ time period.
+
+### Recover previous formulations under the new problem framing
+
+::: {.callout-note collapse="true"}
+#### Classic SIRD
+
+Under the assumption that $T_{I \rightarrow R} \sim \text{Exponential}(\gamma)$ and $T_{I \rightarrow D} \sim \text{Exponential}(\mu)$
+
+The hazard function for leaving the $I$ compartment is
+
+$$
+h_{I \rightarrow R,D}(t) = \frac{ f_{I \rightarrow R}(t)}{S_{I \rightarrow R}(t)} + \frac{ f_{I \rightarrow D}(t)}{S_{I \rightarrow D}(t)} = 
+\frac{\gamma e^{-\gamma t}}{e^{-\gamma t}} + 
+\frac{\mu e^{-\mu t}}{e^{-\mu t}} = \gamma + \mu
+$$
+
+We put emphasis on the derivative for $I$ for now
+
+$$
+\frac{dI(t)}{dt} = - \int_0^\tau (\gamma + \mu) I(t,\tau)d \tau = - (\gamma + \mu) \int_0^\tau I(t,\tau)d \tau 
+$$\
+Recall that $\int_0^\tau I(t,\tau)d \tau$ is basically "summing up" all the sub-populations of $I$ at time $t$, thus the result of the integral is simply $I(t)$. Thus:
+
+$$
+\frac{dI(t)}{dt} = (\gamma + \mu) I(t)
+$$
+
+Following similar steps, you can also recover formulas for $\frac{dR}{dt}$ and $\frac{dD}{dt}$
+
+Another way to look at this since the hazard function $h_{I \rightarrow R,D}(t)$ is simply a constant (in this scenario), we can conclude: the rate of leaving $I$ does not depend on how long an individual have stayed in $I$.
+:::
+
+
+### Implementation
+
+```{r}
+#| code-fold: true
+#| code-summary: "SIRD model with hazard rates"
+
+# ---- Install packages -----
+# install.packages(
+#   "odin2",
+#   repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
+# install.packages(
+#   "dust2",
+#   repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
+sird_mod <- odin2::odin(
+  {
+    # ----- Define algo to update compartments here ---------
+    # classic definition of S->I transition 
+    update(S) <- S - dt * S * beta * sum(I) / N
+
+    update(I[1]) <- dt * S * beta* sum(I)/N
+    # transprob is basically h(tau)
+    # starting from 2: to simulate individuals staying in I for another timestep
+    update(I[2:r_maxtime]) <- I[i-1]*(1-transprob[i-1])
+    
+    dim(I_to_R) <- r_maxtime
+    I_to_R[1:r_maxtime] <- r_hazard[i]*I[i]
+    sum_I_to_R <- sum(I_to_R)
+    update(R) <- R + sum_I_to_R
+    
+    dim(I_to_D) <- d_maxtime
+    I_to_D[1:d_maxtime] <- d_hazard[i]*I[i]
+    sum_I_to_D <- sum(I_to_D)
+    update(D) <- D + sum_I_to_D
+    
+    # print("I to R {sum_I_to_R} I to D {sum_I_to_D}")
+    
+    # initial population
+    initial(S) <- S_init
+    initial(I[]) <- I_init[i]
+    maxtime <- max(r_maxtime, d_maxtime)
+    dim(I) <- maxtime
+    initial(R) <- R_init
+    initial(D) <- D_init
+    
+    # ----- Inputs -------
+    beta <- parameter()
+    
+    # dwell time distribution of r 
+    r_hazard<- parameter()
+    r_maxtime <- parameter()
+    dim(r_hazard) <- r_maxtime
+    
+    # dwell time distribution of d
+    d_hazard <- parameter()
+    d_maxtime <- parameter()
+    dim(d_hazard) <- d_maxtime
+    
+    # initial populations
+    S_init <- parameter()
+    I_init <- parameter()
+    dim(I_init) <- maxtime
+    R_init <- parameter()
+    D_init <- parameter()
+    N <- parameter(1000)
+    
+    # ----- Compute out transition (i.e. hazard rate) here --------
+    # computing overall h(tau) for I
+    dim(transprob) <- maxtime
+    mintime <- min(r_maxtime, d_maxtime)
+    transprob[1:mintime] <- r_hazard[i] + d_hazard[i]
+    transprob[(mintime+1):maxtime] <- if(i>r_maxtime) d_hazard[i] else r_hazard[i]
+  }
+)
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Function to compute hazard rates"
+
+#' Compute hazard rate over dwell time
+#'
+#' @param dist_func - R distribution function for dwell time (pexp, pgamma, etc.)
+#' @param ... - parameters for dist_func
+#' @param timestep - timestep used for the discrete model
+#' @param error_tolerance - how close to 1 the cumulative probability must be
+#'
+#' @return probability distribution, cumulative prob distribution and hazard rates
+compute_hazard <- function(dist_func,..., timestep=0.05, error_tolerance=0.0001){
+  maxtime <- timestep
+  prev_prob <- 0
+  hazard_rates <- numeric()
+  cumulative_dist <- numeric()
+  prob_dist <- numeric()
+  
+  while(TRUE){
+     # get current cumulative prob 
+     temp_prob <-  if_else(
+       dist_func(maxtime, ...) < (1 - error_tolerance), 
+       dist_func(maxtime, ...), 
+       1);
+     cumulative_dist <- c(cumulative_dist, temp_prob)
+     
+     # get f(t)
+     curr_prob <- temp_prob - prev_prob
+     prob_dist <- c(prob_dist, curr_prob)
+     
+     # compute h(t) = f(t)/S(t)
+     curr_hazard <- curr_prob/(1-prev_prob)
+     hazard_rates <- c(hazard_rates, curr_hazard)
+     
+     prev_prob <- temp_prob
+     maxtime <- maxtime + timestep
+     
+     if(temp_prob == 1){
+       break
+     }
+  }
+  
+  data.frame(
+    prob_dist = prob_dist,
+    cumulative_dist = cumulative_dist,
+    hazard_rates = hazard_rates
+  )
+}
+```
+
+We will run the model under the following configurations
+
+```{r}
+#| code-fold: true
+#| code-summary: "Run model"
+
+# ----- modeling configurations -----
+mod_config <- list(
+  r_dist = pgamma,
+  r_params = list(rate=0.2, shape=2),
+  d_dist = pgamma,
+  d_params = list(rate=0.1, shape=2),
+  beta = 0.4,
+  S = 999,
+  I = 1,
+  R = 0,
+  D = 0
+)
+timestep <-  0.05
+simulation_duration <- 50
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Run model"
+
+# ---- Compute hazard rates ----- 
+r_hazard <- compute_hazard(mod_config$r_dist, 
+                           rate=mod_config$r_params$rate, 
+                           shape=mod_config$r_params$shape)$hazard_rates
+d_hazard <- compute_hazard(mod_config$d_dist, 
+                           rate=mod_config$d_params$rate, 
+                           shape=mod_config$d_params$shape)$hazard_rates
+
+# ---- Run model and plot ----- 
+# initialize params
+odin_pars <- list(
+  beta =  mod_config$beta,
+  N =  mod_config$N,
+  r_hazard = r_hazard,
+  r_maxtime = length(r_hazard),
+  d_hazard = d_hazard,
+  d_maxtime = length(d_hazard),
+  S_init = mod_config$S,
+  I_init = array( c(mod_config$I, rep(0, max(length(r_hazard), length(d_hazard))-1)) ),
+  R_init = mod_config$R,
+  D_init = mod_config$D
+)
+
+# run model
+t_seq <- seq(0, simulation_duration, 0.25)
+sird <- dust2::dust_system_create(sird_mod, odin_pars, dt = timestep)
+dust2::dust_system_set_state_initial(sird)
+out <- dust2::dust_system_simulate(sird, t_seq)
+out <- dust2::dust_unpack_state(sird, out)
+
+h_result <- data.frame(
+  t = t_seq,
+  S = out$S,
+  I = colSums(out$I),
+  R = out$R,
+  D = out$D
+)
+# plot output 
+plot_sird(h_result, ylab="Count")
+```
+
+We can cross check the result with the output using LCT @fig-lct-sird
+
+
 
 TODO://
 

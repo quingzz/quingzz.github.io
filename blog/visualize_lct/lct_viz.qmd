@@ -38,7 +38,7 @@ Who is this for?
 
 ## Background
 
-Traditionally, SIR are formulated using the following ODE
+Traditionally, SIR model is formulated using the following ODE
 
 $$
 \begin{cases}
