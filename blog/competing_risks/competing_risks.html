@@ -4085,7 +4085,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#generalized-transition-time-distribution" id="toc-generalized-transition-time-distribution" class="nav-link" data-scroll-target="#generalized-transition-time-distribution"><span class="header-section-number">3</span> Generalized transition time distribution</a>
   <ul class="collapse">
-  <li><a href="#competing-risks-in-terms-of-survival-function" id="toc-competing-risks-in-terms-of-survival-function" class="nav-link" data-scroll-target="#competing-risks-in-terms-of-survival-function"><span class="header-section-number">3.1</span> Competing risks in terms of survival function</a></li>
+  <li><a href="#competing-risks-in-terms-of-survival-functions" id="toc-competing-risks-in-terms-of-survival-functions" class="nav-link" data-scroll-target="#competing-risks-in-terms-of-survival-functions"><span class="header-section-number">3.1</span> Competing risks in terms of survival functions</a></li>
   <li><a href="#recover-previous-formulations-under-the-new-problem-framing" id="toc-recover-previous-formulations-under-the-new-problem-framing" class="nav-link" data-scroll-target="#recover-previous-formulations-under-the-new-problem-framing"><span class="header-section-number">3.2</span> Recover previous formulations under the new problem framing</a></li>
   <li><a href="#implementation-2" id="toc-implementation-2" class="nav-link" data-scroll-target="#implementation-2"><span class="header-section-number">3.3</span> Implementation</a></li>
   </ul></li>
@@ -4249,7 +4249,7 @@ odin.c:216:47: warning: format ‘%d’ expects argument of type ‘int’, but 
       |                                              %s
 gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
 gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin0fab44ec.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpUW5Nul/devtools_install_214921060f24/00LOCK-file21494305aca3/00new/odin0fab44ec/libs
+installing to /tmp/RtmpP1bJ8o/devtools_install_21736997a001/00LOCK-file217314edb364/00new/odin0fab44ec/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin0fab44ec)</code></pre>
 </div>
@@ -4486,7 +4486,7 @@ odin.c:261:47: warning: format ‘%d’ expects argument of type ‘int’, but 
       |                                              %s
 gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
 gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin1356bc86.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpUW5Nul/devtools_install_2149660df138/00LOCK-file21493b98927d/00new/odin1356bc86/libs
+installing to /tmp/RtmpP1bJ8o/devtools_install_21737e4f9c3c/00LOCK-file21736e65bc79/00new/odin1356bc86/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin1356bc86)</code></pre>
 </div>
@@ -4523,10 +4523,10 @@ Figure 2: SIRD with LCT
 </section>
 <section id="generalized-transition-time-distribution" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="generalized-transition-time-distribution"><span class="header-section-number">3</span> Generalized transition time distribution</h2>
-<p>There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations <span class="citation" data-cites="hernández2021">Hernández et al. (<a href="#ref-hernández2021" role="doc-biblioref">2021</a>)</span> or delay differential equation (DDE) <span class="citation" data-cites="hong2024">(<a href="#ref-hong2024" role="doc-biblioref">Hong et al. 2024</a>)</span>.</p>
+<p>There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations <span class="citation" data-cites="hernández2021">(<a href="#ref-hernández2021" role="doc-biblioref">Hernández et al. 2021</a>)</span> or delay differential equation (DDE) <span class="citation" data-cites="hong2024">(<a href="#ref-hong2024" role="doc-biblioref">Hong et al. 2024</a>)</span>.</p>
 <p>This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks.</p>
-<section id="competing-risks-in-terms-of-survival-function" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="competing-risks-in-terms-of-survival-function"><span class="header-section-number">3.1</span> Competing risks in terms of survival function</h3>
+<section id="competing-risks-in-terms-of-survival-functions" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="competing-risks-in-terms-of-survival-functions"><span class="header-section-number">3.1</span> Competing risks in terms of survival functions</h3>
 <p>Consider a scenario where compartment <span class="math inline">\(X\)</span> can transition to <span class="math inline">\(n\)</span> out compartments denoted <span class="math inline">\(O_i\)</span> where <span class="math inline">\(i \in \{1,2,...,n\}\)</span>. We model these out transition as <span class="math inline">\(n\)</span> competing risks (assumed to be independent) with arbitrary parametric distribution.</p>
 <p>Some annotations and indications within the context of compartmental model:</p>
 <ul>
@@ -4676,7 +4676,7 @@ Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is 
 </ul>
 <!-- -->
 <ul>
-<li><p><span class="math inline">\(T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }2)\)</span></p></li>
+<li><p><span class="math inline">\(T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }3)\)</span></p></li>
 <li><p><span class="math inline">\(T_{I\rightarrow D} \sim \text{Erlang}(\text{rate = }\mu, \text{shape = }2)\)</span></p></li>
 </ul>
 <p>Implementation details:</p>
@@ -4837,7 +4837,7 @@ using C++ compiler: ‘g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0’
 g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c cpp11.cpp -o cpp11.o
 g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c dust.cpp -o dust.o
 g++ -std=gnu++17 -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin.system66b5e4e9.so cpp11.o dust.o -fopenmp -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpUW5Nul/devtools_install_2149346706ed/00LOCK-dust_21493c42aea6/00new/odin.system66b5e4e9/libs
+installing to /tmp/RtmpP1bJ8o/devtools_install_217342fac774/00LOCK-dust_21737e46c6ec/00new/odin.system66b5e4e9/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin.system66b5e4e9)</code></pre>
 </div>
