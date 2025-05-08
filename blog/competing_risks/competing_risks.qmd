@@ -54,7 +54,7 @@ We can then derive to the conclusion above, which states the infectious is expon
 
 ### Implementation
 
-The following example implements SIRD model using odin R package
+The code for SIRD model using `odin` R package is as followed
 
 ```{r message=FALSE, warning=FALSE}
 library(odin)
@@ -181,7 +181,7 @@ $$
 \end{cases}
 $$
 
-So how would the formulation after adding another D compartment as a competing risk look like? To answer this, we must consider the assumptions for $I \rightarrow D$ transitions. The 2 scenarios that will be discussed here are:
+So how would the formulation after adding D compartment as a competing risk look like? To answer this, we must first consider the assumptions for $I \rightarrow D$ transitions. The 2 scenarios that will be discussed here are:
 
 -   Time for $I \rightarrow D$ is exponentially distributed $T_{I \rightarrow D} \sim \text{Exponential}(\mu)$
 
@@ -208,7 +208,7 @@ Another way to think of the formulation is that at every compartment $I_{n}$, th
 
 ### Erlang distributed $T_{I \rightarrow D}$
 
-Given transition $I \rightarrow R$ where $T_{I \rightarrow R} \sim \text{Erlang}(\gamma, k)$, $T_{I \rightarrow R}$ can be thought of as the time to $k_{th}$ event of a homogenous Poisson process with rate $\gamma$ [@hurtado2019].
+Given a transition $I \rightarrow R$ where $T_{I \rightarrow R} \sim \text{Erlang}(\gamma, k)$, the transition time $T_{I \rightarrow R}$ can be interpreted as the time to $k_{th}$ event of a homogeneous Poisson process with rate $\gamma$ [@hurtado2019].
 
 To model $I \rightarrow D$ and $I \rightarrow R$ as competing risks where both $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$ are Erlang distributed, we can model them as a "race" between 2 Poisson processes.
 
@@ -314,7 +314,7 @@ $$
 \end{cases}
 $$
 
-A generalized formulation for $\frac{dI_{i,j}}{dt}$, $\frac{dR}{dt}$, $\frac{dD}{dt}$ is as followed
+Formulations $\frac{dI_{i,j}}{dt}$, $\frac{dR}{dt}$, $\frac{dD}{dt}$ can be generalized as followed
 
 $$
 dI_{i,j} = \gamma I_{i-1, j} + \mu I_{i, j-1} - (\gamma + \mu) I_{i,j}
@@ -343,20 +343,31 @@ Where:
 
 ### Implementation
 
-Implementation for the scenario where $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$ are Erlang distributed in odin
+Model set up for this example is as followed
 
-```{r}
+-   $T_{I \rightarrow R} \sim \text{Erlang}(\text{rate}= \gamma, \text{shape} = 3)$
+
+-   $T_{I \rightarrow D} \sim \text{Erlang}(\text{rate}= \mu, \text{shape} = 2)$
+
+Implementation in R using `odin` package
+
+```{r message=FALSE, warning=FALSE}
 #| label: fig-lct-sird
 #| fig-cap: "SIRD with LCT"
 sird_lct <- odin({
   # ODE in odin syntax
-  deriv(S) <- - beta * ((I11 + I12 + I21 + I22)/N) * S
-  deriv(I11) <- beta * ((I11 + I12 + I21 + I22)/N) * S - (gamma + mu)*I11
+  deriv(S) <- - beta * ((I11 + I12 + I21 + I22 + I31 + I32)/N) * S
+  # all incoming population from S go to I11
+  deriv(I11) <- beta * ((I11 + I12 + I21 + I22 + I31 + I32)/N) * S - (gamma + mu)*I11
+  # sub-compartments for I
   deriv(I12) <- mu*I11 - (gamma + mu)*I12
   deriv(I21) <- gamma*I11 - (gamma + mu)*I21
   deriv(I22) <- gamma*I12 + mu*I21 - (gamma + mu)*I22
-  deriv(R) <- gamma*I21 + gamma*I22
-  deriv(D) <- mu*I12 + mu*I22
+  deriv(I31) <- gamma*I21 - (gamma + mu)*I31
+  deriv(I32) <- mu*I31 + gamma*I22 - (gamma + mu)*I32
+  # handle R and D compartments
+  deriv(R) <- gamma*I31 + gamma*I32
+  deriv(D) <- mu*I12 + mu*I22 + mu*I32
 
   # input parameters
   init_S <- user(0)
@@ -372,6 +383,8 @@ sird_lct <- odin({
   initial(I12) <- 0
   initial(I21) <- 0
   initial(I22) <- 0
+  initial(I31) <- 0
+  initial(I32) <- 0
   initial(R) <- 0
   initial(D) <- 0
 })
@@ -389,20 +402,20 @@ odin_mod <- sird_lct$new(
 odin_mod <- odin_mod$run(times) %>% 
   as.data.frame() %>% 
   mutate(
-    I = I11 + I12 + I21 + I22
+    I = I11 + I12 + I21 + I22 + I32 + I31
   )
 plot_sird(odin_mod)
 ```
 
 ## Generalized transition time distribution
 
-There have been several methods proposed to handle arbitrary dwell time distribution in compartmental model, using delay-integro differential equations or delay differential equation (DDE).
+There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations @hernández2021 or delay differential equation (DDE) [@hong2024].
 
 This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks.
 
 ### Competing risks in terms of survival function
 
-Consider the scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
+Consider a scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
 
 Some annotations and indications within the context of compartmental model:
 
@@ -412,7 +425,7 @@ Some annotations and indications within the context of compartmental model:
 
 -   $h(t)$ is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time $t$. (i.e., $h(t) = \frac{f(t)}{S(t)}$)
 
--   The subset of function annotation denotes which event this function is for. For example, $f_{X \rightarrow O_1}(t)$ refers to the PDF for the $X \rightarrow O_1$ transition.
+-   The subscript of function annotation denotes which event this function is for. For example, $f_{X \rightarrow O_1}(t)$ refers to the PDF for the $X \rightarrow O_1$ transition.
 
 The survival function for leaving $X$ (denoted $S_X (t)$) is the product of survival functions for all $X \rightarrow O_i$.
 
@@ -421,7 +434,7 @@ S_X(t) = \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)
 $$
 
 ::: {.callout-note collapse="true"}
-## Why the overall survival function looks like that?
+#### Formulation for $S_X(t)$
 
 Recall that $S_X(1)$ is equivalent to $P(T_X > t)$ (i.e. probability that individual have not left $X$ compartment at time $t$).
 
@@ -443,13 +456,13 @@ $$
 The hazard function for leaving $X$ can then be represented as.
 
 $$
-h_X(t) = \frac{-\frac{d}{dt} S_X(t)}{S_X(t)} = \frac{-\frac{d}{dt} \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
+h_X(t) = \frac{f_X(t)}{S_X(t)} = \frac{-\frac{d}{dt} S_X(t)}{S_X(t)} = \frac{-\frac{d}{dt} \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
 $$
 
 After a few steps of simplifying the function, we will eventually arrive at the following.
 
 $$
-h_X(t) = \sum_{i = 1}^n\frac{ f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)}
+h_X(t) = \sum_{i = 1}^n\frac{ f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)} = \sum_{i = 1}^n h_{X \rightarrow O_i}(t)
 $$
 
 ::: {.callout-note collapse="true"}
@@ -506,7 +519,7 @@ $$
 \vdots \\
 \frac{dO_n(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
 \end{cases}
-$$
+$$ {#eq-comp-hazard}
 
 Where:
 
@@ -548,7 +561,103 @@ Another way to look at this since the hazard function $h_{I \rightarrow R,D}(t)$
 
 ### Implementation
 
-```{r}
+SIRD model set up:
+
+-   $S \rightarrow I$ follows traditional SIRD definition
+
+```{=html}
+<!-- -->
+```
+-   $T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }2)$
+
+-   $T_{I\rightarrow D} \sim \text{Erlang}(\text{rate = }\mu, \text{shape = }2)$
+
+Implementation details:
+
+-   The implemented model is in [discrete time]{.underline}, where lower timestep results in better estimation (since we're doing numerical simulation).
+
+-   For modeling simplicity, the implementation here is deterministic.
+
+There are 2 main steps for the implementation:
+
+-   Implement function to compute time varying hazard rates (i.e. estimation for `h(t)`) given PDF for $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$.
+
+-   Implement the discrete SIRD model given hazard rates for $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$.
+
+#### Function to generate hazard rates
+
+To implement this function, we first need to decide what should be the limit for $\tau$ (i.e. the limit for $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$).
+
+The most straight forward way is to find $\tau$ where $S_{I}(\tau) = 0$. However, since $S_I(t)$ is asymptotic to 0, the best we can do is choose $\tau$ where $S_I(\tau)$ is sufficiently close to 0 (or in other words, when cumulative distribution is sufficiently close to 1).
+
+An implementation in R is provided below.
+
+```{r  message=FALSE, warning=FALSE}
+#| code-fold: true
+#| code-summary: "Function to compute hazard rates"
+
+#' Compute hazard rate over dwell time
+#'
+#' @param dist_func - R distribution function for dwell time (pexp, pgamma, etc.)
+#' @param ... - parameters for dist_func
+#' @param timestep - timestep used for the discrete model
+#' @param error_tolerance - how close to 1 the cumulative probability must be
+#'
+#' @return probability distribution, cumulative prob distribution and hazard rates
+compute_hazard <- function(dist_func,..., timestep=0.05, error_tolerance=0.0001){
+  maxtime <- timestep
+  prev_prob <- 0
+  hazard_rates <- numeric()
+  cumulative_dist <- numeric()
+  prob_dist <- numeric()
+  
+  while(TRUE){
+     # get current cumulative prob and check whether it is sufficiently close to 1
+     temp_prob <-  if_else(
+       dist_func(maxtime, ...) < (1 - error_tolerance), 
+       dist_func(maxtime, ...), 
+       1);
+     cumulative_dist <- c(cumulative_dist, temp_prob)
+     
+     # get f(t)
+     curr_prob <- temp_prob - prev_prob
+     prob_dist <- c(prob_dist, curr_prob)
+     
+     # compute h(t) = f(t)/S(t)
+     curr_hazard <- curr_prob/(1-prev_prob)
+     hazard_rates <- c(hazard_rates, curr_hazard)
+     
+     prev_prob <- temp_prob
+     maxtime <- maxtime + timestep
+     
+     if(temp_prob == 1){
+       break
+     }
+  }
+  
+  data.frame(
+    prob_dist = prob_dist,
+    cumulative_dist = cumulative_dist,
+    hazard_rates = hazard_rates
+  )
+}
+```
+
+#### SIRD model implemeted in odin
+
+To implement this function, we first need to address 2 problems:
+
+-   How should $I$ be partitioned? (i.e. what each sub-compartment in $I$ represents)
+
+-   What should be the number of $I$ sub-compartments?
+
+Recall @eq-comp-hazard, we need to keep track of $I(t, \tau)$ which is the sub-population of $I(t)$ that have stayed for $\tau$ time period. In discrete time, it is equivalent to dividing $I(t)$ into $\frac{\tau}{timestep}$ sub-compartments.
+
+Since we are dealing with 2 out compartments ($R$ and $D$), the maximum dwell time in $I$ is the greater of $\text{max}(T_{I \rightarrow R})$ and $\text{max}(T_{I \rightarrow D})$.
+
+An implementation in R using `odin2` package is provided below.
+
+```{r  message=FALSE, warning=FALSE}
 #| code-fold: true
 #| code-summary: "SIRD model with hazard rates"
 
@@ -616,72 +725,24 @@ sird_mod <- odin2::odin(
     dim(transprob) <- maxtime
     mintime <- min(r_maxtime, d_maxtime)
     transprob[1:mintime] <- r_hazard[i] + d_hazard[i]
+    # handle scenarios where maximum dwell time in R>D or maximum dwell time in D<R
     transprob[(mintime+1):maxtime] <- if(i>r_maxtime) d_hazard[i] else r_hazard[i]
   }
 )
 ```
 
-```{r}
-#| code-fold: true
-#| code-summary: "Function to compute hazard rates"
-
-#' Compute hazard rate over dwell time
-#'
-#' @param dist_func - R distribution function for dwell time (pexp, pgamma, etc.)
-#' @param ... - parameters for dist_func
-#' @param timestep - timestep used for the discrete model
-#' @param error_tolerance - how close to 1 the cumulative probability must be
-#'
-#' @return probability distribution, cumulative prob distribution and hazard rates
-compute_hazard <- function(dist_func,..., timestep=0.05, error_tolerance=0.0001){
-  maxtime <- timestep
-  prev_prob <- 0
-  hazard_rates <- numeric()
-  cumulative_dist <- numeric()
-  prob_dist <- numeric()
-  
-  while(TRUE){
-     # get current cumulative prob 
-     temp_prob <-  if_else(
-       dist_func(maxtime, ...) < (1 - error_tolerance), 
-       dist_func(maxtime, ...), 
-       1);
-     cumulative_dist <- c(cumulative_dist, temp_prob)
-     
-     # get f(t)
-     curr_prob <- temp_prob - prev_prob
-     prob_dist <- c(prob_dist, curr_prob)
-     
-     # compute h(t) = f(t)/S(t)
-     curr_hazard <- curr_prob/(1-prev_prob)
-     hazard_rates <- c(hazard_rates, curr_hazard)
-     
-     prev_prob <- temp_prob
-     maxtime <- maxtime + timestep
-     
-     if(temp_prob == 1){
-       break
-     }
-  }
-  
-  data.frame(
-    prob_dist = prob_dist,
-    cumulative_dist = cumulative_dist,
-    hazard_rates = hazard_rates
-  )
-}
-```
+#### Run the model
 
 We will run the model under the following configurations
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #| code-fold: true
-#| code-summary: "Run model"
+#| code-summary: "Model config"
 
 # ----- modeling configurations -----
 mod_config <- list(
   r_dist = pgamma,
-  r_params = list(rate=0.2, shape=2),
+  r_params = list(rate=0.2, shape=3),
   d_dist = pgamma,
   d_params = list(rate=0.1, shape=2),
   beta = 0.4,
@@ -694,7 +755,7 @@ timestep <-  0.05
 simulation_duration <- 50
 ```
 
-```{r}
+```{r  message=FALSE, warning=FALSE}
 #| code-fold: true
 #| code-summary: "Run model"
 
@@ -741,8 +802,37 @@ plot_sird(h_result, ylab="Count")
 
 We can cross check the result with the output using LCT @fig-lct-sird
 
+#### **Related packages**
 
+`denim` R package implements this approach to handle arbitrary dwell time distribution, and provide a generalized API for scalable models.
 
-TODO://
+Refers to the documentation [here](https://drthinhong.com/denim/).
+
+```{r}
+# TODO: include model implemented in denim
+```
+
+## Takeaway points
+
+Basic implementation of SIRD:
+
+-   Infectious period can be interpreted as a race between $I \rightarrow R$ and $I \rightarrow D$
+
+-   The implicit assumptions are: $T_{I \rightarrow R} \sim \text{Exponential}(\text{rate} = \gamma)$ and $T_{I \rightarrow D} \sim \text{Exponential}(\text{rate} = \mu)$
+
+SIRD with linear chain trick:
+
+-   For implementing Erlang distributed $T_{I \rightarrow R}$ and/or $T_{I \rightarrow D}$ using a system of ODE.
+
+```{=html}
+<!-- -->
+```
+-   It is useful to frame the problem as a race between homogeneous Poisson processes.
+
+Arbitrary distributed $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$:
+
+-   It is suggested that framing the problem in term of time varying hazard rates, then solving it numerically may prove to be useful.
+
+-   The underlying assumption is that the distributions for $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$ are independent.
 
 ## References {.unnumbered}
