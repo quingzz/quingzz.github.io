@@ -409,11 +409,11 @@ plot_sird(odin_mod)
 
 ## Generalized transition time distribution
 
-There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations @hernández2021 or delay differential equation (DDE) [@hong2024].
+There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations [@hernández2021] or delay differential equation (DDE) [@hong2024].
 
 This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks.
 
-### Competing risks in terms of survival function
+### Competing risks in terms of survival functions
 
 Consider a scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
 
@@ -568,7 +568,7 @@ SIRD model set up:
 ```{=html}
 <!-- -->
 ```
--   $T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }2)$
+-   $T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }3)$
 
 -   $T_{I\rightarrow D} \sim \text{Erlang}(\text{rate = }\mu, \text{shape = }2)$
 
