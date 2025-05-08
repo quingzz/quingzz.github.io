@@ -651,7 +651,7 @@ To implement this function, we first need to address 2 problems:
 
 -   What should be the number of $I$ sub-compartments?
 
-Recall @eq-comp-hazard, we need to keep track of $I(t, \tau)$ which is the sub-population of $I(t)$ that have stayed for $\tau$ time period. In discrete time, it is equivalent to dividing $I(t)$ into $\frac{\tau}{timestep}$ sub-compartments.
+Recall @eq-comp-hazard, we need to keep track of $I(t, \tau)$ which is the sub-population of $I(t)$ that have stayed for $\tau$ time period. In discrete time, it is equivalent to dividing $I(t)$ into $\frac{\max(\tau)}{timestep}$ sub-compartments.
 
 Since we are dealing with 2 out compartments ($R$ and $D$), the maximum dwell time in $I$ is the greater of $\text{max}(T_{I \rightarrow R})$ and $\text{max}(T_{I \rightarrow D})$.
 
