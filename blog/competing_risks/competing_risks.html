@@ -4249,7 +4249,7 @@ odin.c:216:47: warning: format ‘%d’ expects argument of type ‘int’, but 
       |                                              %s
 gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
 gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin0fab44ec.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpP1bJ8o/devtools_install_21736997a001/00LOCK-file217314edb364/00new/odin0fab44ec/libs
+installing to /tmp/Rtmpw5Z1hn/devtools_install_22273d30b142/00LOCK-file222740cdd8d9/00new/odin0fab44ec/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin0fab44ec)</code></pre>
 </div>
@@ -4486,7 +4486,7 @@ odin.c:261:47: warning: format ‘%d’ expects argument of type ‘int’, but 
       |                                              %s
 gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
 gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin1356bc86.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpP1bJ8o/devtools_install_21737e4f9c3c/00LOCK-file21736e65bc79/00new/odin1356bc86/libs
+installing to /tmp/Rtmpw5Z1hn/devtools_install_22277d2b9e3c/00LOCK-file222727d9f4f9/00new/odin1356bc86/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin1356bc86)</code></pre>
 </div>
@@ -4752,7 +4752,7 @@ Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is 
 <li><p>How should <span class="math inline">\(I\)</span> be partitioned? (i.e. what each sub-compartment in <span class="math inline">\(I\)</span> represents)</p></li>
 <li><p>What should be the number of <span class="math inline">\(I\)</span> sub-compartments?</p></li>
 </ul>
-<p>Recall <a href="#eq-comp-hazard" class="quarto-xref">Equation 1</a>, we need to keep track of <span class="math inline">\(I(t, \tau)\)</span> which is the sub-population of <span class="math inline">\(I(t)\)</span> that have stayed for <span class="math inline">\(\tau\)</span> time period. In discrete time, it is equivalent to dividing <span class="math inline">\(I(t)\)</span> into <span class="math inline">\(\frac{\tau}{timestep}\)</span> sub-compartments.</p>
+<p>Recall <a href="#eq-comp-hazard" class="quarto-xref">Equation 1</a>, we need to keep track of <span class="math inline">\(I(t, \tau)\)</span> which is the sub-population of <span class="math inline">\(I(t)\)</span> that have stayed for <span class="math inline">\(\tau\)</span> time period. In discrete time, it is equivalent to dividing <span class="math inline">\(I(t)\)</span> into <span class="math inline">\(\frac{\max(\tau)}{timestep}\)</span> sub-compartments.</p>
 <p>Since we are dealing with 2 out compartments (<span class="math inline">\(R\)</span> and <span class="math inline">\(D\)</span>), the maximum dwell time in <span class="math inline">\(I\)</span> is the greater of <span class="math inline">\(\text{max}(T_{I \rightarrow R})\)</span> and <span class="math inline">\(\text{max}(T_{I \rightarrow D})\)</span>.</p>
 <p>An implementation in R using <code>odin2</code> package is provided below.</p>
 <div class="cell">
@@ -4837,7 +4837,7 @@ using C++ compiler: ‘g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0’
 g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c cpp11.cpp -o cpp11.o
 g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c dust.cpp -o dust.o
 g++ -std=gnu++17 -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin.system66b5e4e9.so cpp11.o dust.o -fopenmp -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/RtmpP1bJ8o/devtools_install_217342fac774/00LOCK-dust_21737e46c6ec/00new/odin.system66b5e4e9/libs
+installing to /tmp/Rtmpw5Z1hn/devtools_install_222715f04d4a/00LOCK-dust_2227716da2d5/00new/odin.system66b5e4e9/libs
 ** checking absolute paths in shared objects and dynamic libraries
 * DONE (odin.system66b5e4e9)</code></pre>
 </div>
