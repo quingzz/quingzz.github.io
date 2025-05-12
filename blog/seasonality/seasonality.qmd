@@ -1,0 +1,334 @@
+---
+title: Seasonality 
+description: "Formulating seasonality in compartmental model"
+author: Anh Phan
+date: "2025-05-09"
+image: "../default_blog_pic.png"
+format: 
+  html:
+    number-sections: true
+    embed-resources: true
+    self-contained: true
+bibliography: references.bib
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+## Background
+
+Traditional SIR model assumes that the force of infection depends on the proportion of infectives in the population, formulated as $\beta \frac{I}{N}$ in the following system of ODEs.
+
+$$
+\begin{cases}
+\frac{dS}{dt} = bN-\beta \frac{I}{N} S\\
+\frac{dI}{dt} = \beta \frac{I}{N} S - \gamma I\\
+\frac{dR}{dt} = \gamma I\\
+\end{cases}
+$$
+
+Where:
+
+-   $b$ is the per capita birth rate
+
+-   $\beta$ is the transmission rate
+
+-   $\gamma$ is the recovery rate
+
+However, several statistical approaches have revealed that transmission of childhood infections also varies seasonally [@anderson1991]. This property can be reflected by using a time varying contact rate $\beta(t)$.
+
+Different functional forms for $\beta(t)$ can lead to different disease dynamics. In the following sections, we first focus on sinusoidal $\beta(t)$ then discuss some alternative forms for $\beta(t)$.
+
+## Sinusoidal $\beta(t)$
+
+Sinusoidal functions (sine, cosine, etc.) are the most straightforward choices to model $\beta(t)$ due to their periodic nature. @19762902036 formulate $\beta(t)$ as followed
+
+$$
+\beta(t) = \beta_0(1+\beta_1 \text{cos}(\omega t))
+$$
+
+Where:
+
+-   $\beta_0$ is the baseline transmission rate (average transmission rate).
+
+-   $\beta_1$ controls the amplitude of seasonality (amplitude = $\beta_1 *\beta_0$)
+
+-   $\omega$ controls the period of forcing $\frac{2\pi}{\text{period in time unit}}$ (when period of forcing is 1 year, time unit is in week, $\omega = \frac{2\pi}{52}$)
+
+```{r, include=FALSE}
+beta_0 <- 0.2
+beta_1 <- 0.5
+# 2*pi/(weeks per year)
+omega <- 2*pi/(52)
+
+data.frame(
+  times = seq(0, 5*52, 1)
+) %>% 
+  mutate(
+    beta_t = beta_0*(1 + beta_1*cos(omega*times))
+  ) %>% 
+  ggplot(aes(x = times, y = beta_t)) +
+  geom_line(color = "cornflowerblue") +
+  geom_hline(aes(yintercept = beta_0), color = "red")
+```
+
+**How seasonal forcing can amplify small perturbations to the unforced equilibrium**
+
+Oscillations in number of infectives under small perturbations, assuming a small amplitude of seasonality have been investigated.
+
+While period of oscillations stays the same (as before seasonal forcing), amplitude is now given by the following equation.
+
+$$
+M = \beta_1 \omega \gamma \{ (b* \beta_0 - \omega^2 )^2 + (\omega b R_0)^2 \}^{-\frac{1}{2}}
+$$ {#eq-seaforce-amp}
+
+To demonstrate what this function implies, we can try plugging in some values. For measles, the parameters used are $\frac{1}{\gamma} = 2$, $b R_0 \sim 0.014$, $\omega = \frac{\pi}{26}$, which would result in $M \sim 7.76 \beta_1$. The interpretation for this is: a 10% increase in $\beta_1$ can lead to 78% increase in case notifications.
+
+::: {.callout-note collapse="true"}
+### Method to derive the amplitude equation
+
+Small perturbations to the unforced equilibrium is modeled by the substitutions $S = S(1+s)$ and $I = I(1+i)$ (where $s$ and $i$ are small perturbations on the susceptible and infectious population).
+
+The assumption of a small amplitude of seasonality is equivalent to having a small $\beta_1$ value (i.e. $\beta_1 << 1$).
+
+After omitting some intermediate steps, we can obtain the second order differential equation in the small infectious perturbation $i$.
+
+$$
+\frac{d^2 i}{dt^2} + b R_0 \frac{di}{dt} + b \beta_0 i = -\beta_1 \omega \gamma \text{ sin}(\omega t)
+$$
+
+The integral for this equation gives the [period]{.underline} and [amplitude]{.underline} of oscillations as driven by the seasonal term.
+:::
+
+### Harmonic and Sub-harmonic resonance
+
+Let's first revisit the familiar SIR model, but now we put our focus on $S$ and $I$ compartments
+
+$$
+\frac{dS}{dt} = bN - (\beta(t) \frac{I}{N} + b)S \\
+\frac{dI}{dt} = \beta(t) \frac{I}{N} - (b + \gamma)I
+$$Note that the death and birth rate are assumed to be the same to keep the total population constant.
+
+$\beta(t)$ is defined as $\beta(t) = \beta_0(1- \beta_1 \text{cos}(\omega t))$. Note that minus sign is used so seasonal forcing is at 0 at the start.
+
+In the absence of seasonal forcing (i.e. $\beta_1 = 0$), the system fluctuates with frequency $F$, where.
+
+$$
+F^2 = b(\gamma + b)(R_0  - 1) - (\frac{b R_0}{2})^2
+$$
+
+These oscillations is hereby referred to as the [natural oscillations.]{.underline}
+
+When the natural period of oscillations is approximately the same as seasonal forcing period (i.e., $F \approx  \omega$ ) we observe [harmonic resonance,]{.underline} where the amplitude of oscillations may be greatly increased.
+
+Looking at @eq-seaforce-amp, when forcing is relatively small, the **amplification** of sinusoidal forcing ( $\frac{M}{\beta_1}$ ) is largest when the forcing frequency $\omega$ is close the natural oscillation frequency $F$. (i.e. $F \approx \sqrt{b \beta_0}$ ).
+
+When natural period of oscillations $\frac{1}{F}$ is close to an integer multiple of period of forcing $\frac{1}{\omega}$, we observe a phenomenon called [sub-harmonic resonance]{.underline}. Under this phenomenon, the observed period of oscilations is longer than that of forcing.
+
+Changes in $\beta_1$ and $R_0$ can also lead to qualitatively different epidemic patterns.
+
+***Example:*** base model (model without seasonality forcing) vs model with harmonic resonance vs model with sub-harmonic resonance
+
+```{r output=FALSE, warning=FALSE}
+#| code-fold: true
+#| code-summary: "SIR model with seasonality"
+library(odin2) 
+library(dust2)
+
+sir_seasonality <- odin2::odin({
+  N <- S + I + R
+  deriv(S) <- b*N - (beta_t*(I/N) + b)*S
+  deriv(I) <-beta_t*(I/N)*S - (b + gamma)*I
+  deriv(R) <- gamma*I - R*b
+
+  # seasonality forcing
+  beta_0 <- parameter(0.4)
+  beta_1 <- parameter(0)
+  omega <- parameter(2*3.14/52) # use week as time unit by default
+  beta_t <- beta_0*(1 - beta_1*cos(omega*time))
+  
+  # initialize starting population
+  init_S <- parameter(9500)
+  init_I <- parameter(500)
+  gamma <- parameter(0.05)
+  b <- parameter(0.05)
+  
+  initial(S) <- init_S
+  initial(I) <- init_I
+  initial(R) <- 0
+  
+})
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Helper functions"
+
+# helper function to compute F 
+get_f_val <- function(params, R_0=NULL){
+  f_val <- NULL
+  # --- Compute F -----
+  with(params, {
+    R_0 <- (beta_0)/(gamma + b)
+    f_val <<- sqrt( b*(gamma + b)*(R_0 - 1) - (b*R_0/2)**2 )
+  })
+  
+  f_val
+}
+
+# helper function to run the model 
+run_mod <- function(mod, pars, duration=100, timestep=0.05){
+  # --- initialize simulation time ---- 
+  times <- seq(0, duration, timestep)
+  
+  sys <- dust_system_create(mod, pars)
+  dust_system_set_state_initial(sys)
+  out <- dust_system_simulate(sys, times)
+  out <- dust_unpack_state(sys, out)
+  
+  out %>% 
+    as.data.frame() %>% 
+    mutate(
+      t = times
+    )
+}
+
+# helper function to plot the proportion of infectives 
+plot_i_prop <- function(data, t_lower = 90, f_val=NULL){
+  plot <- data %>% 
+    mutate(
+      N = S + I + R,
+      i = I/N,
+      i = log(i),
+    ) %>% 
+    filter(t > t_lower) %>%
+    ggplot(aes(x = t, y = i)) +
+      geom_line(color = "cornflowerblue") +
+      labs(
+        title = "Oscillations in infectives",
+        y = "Log(proportion of infectives)",
+        x = "Time (years)"
+      )
+  
+  # --- annotate start and end of each cycle --- 
+  if(!is.null(f_val)){
+    # compute oscillation period
+    osc_period <- 2*pi/f_val
+    
+    cycle_df <- data.frame(
+        cycle_t = seq(0, by = osc_period, 
+                      length.out = round(max(data$t)/osc_period) + 1)
+      ) %>% 
+      filter(cycle_t > t_lower)
+    
+    plot <- plot + geom_vline(
+      aes(xintercept = cycle_t),
+      data=cycle_df,
+      color = "red", linetype = "dashed")
+  }
+  
+  plot + 
+    labs(
+        title = "Oscillations in infectives",
+        y = "Log(proportion of infectives)",
+        x = "Time (years)"
+      )
+}
+
+# helper function to plot the SIR model
+plot_sir <- function(data, ylab="Count"){
+  data %>% 
+    ggplot() +
+      geom_line(aes(x = t, y = S, color = "S")) +
+      geom_line(aes(x = t, y = I, color = "I")) +
+      geom_line(aes(x = t, y = R, color = "R")) +
+      scale_color_manual(
+        values = c("S" = "cornflowerblue", "I" = "red", "R" = "green")
+      )+
+      labs(
+        title = "Model output",
+        x = "Time",
+        y = ylab
+      )
+}
+```
+
+For this example, the following set of parameters is used, note that 1 time unit is equivalent to 1 year
+
+-   $\gamma = \frac{365}{13}$ for 13 days infectious period
+
+-   $b= 0.02$
+
+-   $\beta_0 = 478$
+
+-   For initial values $S(0) = 0.06$ and $I(0) = 0.001$
+
+-   Value for $\omega$ will be changed to demonstrate resonance and harmonic resonance
+
+The natural frequency of oscillations under this set of parameters is $F \approx 1.7$ (i.e. the period of natural oscillations is $\frac{2\pi}{F} \approx 2.098 \text{ (years)}$). To visualize this, we can try running and plotting the model when there is no forcing ( $\beta_1 = 0$ ).
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for SIR without seasonality forcing"
+no_forcing_pars <- list(
+  beta_1 = 0,
+  beta_0 = 478,
+  gamma = 365/13,
+  b = 0.02,
+  init_S = 6e-2,
+  init_I = 1e-3
+)
+
+# compute natural oscillation frequency  
+f_val <- get_f_val(no_forcing_pars)
+
+# --- run model + plot proportion of infectives ----
+run_mod(sir_seasonality, no_forcing_pars, duration=150) %>% 
+  plot_i_prop(t_lower=130)
+```
+
+To demonstrate how [sub-harmonic resonance]{.underline} would affect the proportion of infectives, we can set $\beta_1 > 0$ ( $\beta_1 = 0.1$ in this example) to apply seasonal forcing and set $\omega = F$.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for demonstrating harmonic resonance"
+harmonic_pars <- no_forcing_pars
+harmonic_pars$beta_1 <- 0.1
+
+# compute natural oscillation frequency  
+f_val <- get_f_val(harmonic_pars)
+# set omega = F
+harmonic_pars$omega <- f_val
+
+# --- run model + plot proportion of infectives ----
+run_mod(sir_seasonality, harmonic_pars, duration=150) %>%
+  plot_i_prop(t_lower=130)
+```
+
+To demonstrate how [harmonic resonance]{.underline} would affect the proportion of infectives, we can set $\beta_1 > 0$ ( $\beta_1 = 0.1$ in this example) to apply seasonal forcing and set $\omega = \frac{1}{n}F$ where $n$ is an integer greater than 1.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for demonstrating sub-harmonic resonance"
+subharmonic_pars <- no_forcing_pars
+subharmonic_pars$beta_1 <- 0.1
+
+# compute natural oscillation frequency  
+f_val <- get_f_val(subharmonic_pars)
+subharmonic_pars$omega <- 0.5*f_val
+
+# --- run model + plot proportion of infectives ----
+run_mod(sir_seasonality, subharmonic_pars, duration=150) %>% 
+  plot_i_prop(t_lower = 130)
+```
+
+### Sub-harmonic resonance and multi-annual cycles
+
+### Stability
+
+Introducing time-dependent contact rate generate a variety of dynamical patterns - depending on parameter values - from simple annual epidemics, to multiannual outbreaks and eventually chaos.
+
+## Other functional forms for $\beta(t)$
+
+## References
