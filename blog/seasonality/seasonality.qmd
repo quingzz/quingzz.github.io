@@ -107,7 +107,7 @@ Let's first revisit the familiar SIR model, but now we put our focus on $S$ and 
 
 $$
 \frac{dS}{dt} = bN - (\beta(t) \frac{I}{N} + b)S \\
-\frac{dI}{dt} = \beta(t) \frac{I}{N} - (b + \gamma)I
+\frac{dI}{dt} = \beta(t) \frac{I}{N} S - (b + \gamma)I
 $$Note that the death and birth rate are assumed to be the same to keep the total population constant.
 
 $\beta(t)$ is defined as $\beta(t) = \beta_0(1- \beta_1 \text{cos}(\omega t))$. Note that minus sign is used so seasonal forcing is at 0 at the start.
@@ -120,13 +120,15 @@ $$
 
 These oscillations is hereby referred to as the [natural oscillations.]{.underline}
 
-When the natural period of oscillations is approximately the same as seasonal forcing period (i.e., $F \approx  \omega$ ) we observe [harmonic resonance,]{.underline} where the amplitude of oscillations may be greatly increased.
+When the natural period of oscillations is approximately the same as seasonal forcing period (i.e., $F \approx \omega$ ) we observe [harmonic resonance,]{.underline} where the amplitude of oscillations may be greatly increased.
 
 Looking at @eq-seaforce-amp, when forcing is relatively small, the **amplification** of sinusoidal forcing ( $\frac{M}{\beta_1}$ ) is largest when the forcing frequency $\omega$ is close the natural oscillation frequency $F$. (i.e. $F \approx \sqrt{b \beta_0}$ ).
 
-When natural period of oscillations $\frac{1}{F}$ is close to an integer multiple of period of forcing $\frac{1}{\omega}$, we observe a phenomenon called [sub-harmonic resonance]{.underline}. Under this phenomenon, the observed period of oscilations is longer than that of forcing.
+When natural period of oscillations $\frac{1}{F}$ is close to an integer multiple of period of forcing $\frac{1}{\omega}$ (i.e. $\frac{1}{F} \approx n \frac{1}{\omega}$), we observe a phenomenon called [sub-harmonic resonance]{.underline}. Under this phenomenon, the observed period of oscilations is longer than that of forcing.
 
 Changes in $\beta_1$ and $R_0$ can also lead to qualitatively different epidemic patterns.
+
+📌 Introducing time-dependent contact rate generate a variety of dynamical patterns - depending on parameter values - from simple annual epidemics, to multi-annual outbreaks and eventually chaos.
 
 ***Example:*** base model (model without seasonality forcing) vs model with harmonic resonance vs model with sub-harmonic resonance
 
@@ -194,33 +196,28 @@ run_mod <- function(mod, pars, duration=100, timestep=0.05){
     )
 }
 
-# helper function to plot the proportion of infectives 
-plot_i_prop <- function(data, t_lower = 90, f_val=NULL){
+# helper function to plot the proportion of a specified compartment 
+plot_comp_prop <- function(data, comp="I", t_lower = 90, use_log = TRUE, osc_freq=NULL){
   plot <- data %>% 
     mutate(
       N = S + I + R,
-      i = I/N,
-      i = log(i),
+      prop = .data[[comp]]/N,
+      prop = if(use_log) log(prop) else prop
     ) %>% 
-    filter(t > t_lower) %>%
-    ggplot(aes(x = t, y = i)) +
-      geom_line(color = "cornflowerblue") +
-      labs(
-        title = "Oscillations in infectives",
-        y = "Log(proportion of infectives)",
-        x = "Time (years)"
-      )
+    filter(t >= t_lower) %>%
+    ggplot(aes(x = t, y = prop)) +
+      geom_line(color = "cornflowerblue") 
   
-  # --- annotate start and end of each cycle --- 
-  if(!is.null(f_val)){
+  # --- annotate start and end of each cycle if oscillation frequency is provided --- 
+  if(!is.null(osc_freq)){
     # compute oscillation period
-    osc_period <- 2*pi/f_val
+    osc_period <- 2*pi/osc_freq
     
     cycle_df <- data.frame(
         cycle_t = seq(0, by = osc_period, 
                       length.out = round(max(data$t)/osc_period) + 1)
       ) %>% 
-      filter(cycle_t > t_lower)
+      filter(cycle_t >= t_lower)
     
     plot <- plot + geom_vline(
       aes(xintercept = cycle_t),
@@ -230,8 +227,9 @@ plot_i_prop <- function(data, t_lower = 90, f_val=NULL){
   
   plot + 
     labs(
-        title = "Oscillations in infectives",
-        y = "Log(proportion of infectives)",
+        title = paste0("Oscillations in ",comp, " compartment"),
+        y = if(use_log) paste0("Log(proportion of ",comp, ")") else 
+          paste0("proportion of ", comp),
         x = "Time (years)"
       )
 }
@@ -271,6 +269,8 @@ The natural frequency of oscillations under this set of parameters is $F \approx
 ```{r}
 #| code-fold: true
 #| code-summary: "Code for SIR without seasonality forcing"
+#| label: fig-no-force
+#| fig-cap: "Oscillations in I when there is no forcing"
 no_forcing_pars <- list(
   beta_1 = 0,
   beta_0 = 478,
@@ -285,7 +285,7 @@ f_val <- get_f_val(no_forcing_pars)
 
 # --- run model + plot proportion of infectives ----
 run_mod(sir_seasonality, no_forcing_pars, duration=150) %>% 
-  plot_i_prop(t_lower=130)
+  plot_comp_prop(t_lower=140)
 ```
 
 To demonstrate how [sub-harmonic resonance]{.underline} would affect the proportion of infectives, we can set $\beta_1 > 0$ ( $\beta_1 = 0.1$ in this example) to apply seasonal forcing and set $\omega = F$.
@@ -293,6 +293,8 @@ To demonstrate how [sub-harmonic resonance]{.underline} would affect the proport
 ```{r}
 #| code-fold: true
 #| code-summary: "Code for demonstrating harmonic resonance"
+#| label: fig-harmonic
+#| fig-cap: "Oscillations in I when period of forcing is the same as natural oscillation period"
 harmonic_pars <- no_forcing_pars
 harmonic_pars$beta_1 <- 0.1
 
@@ -303,32 +305,138 @@ harmonic_pars$omega <- f_val
 
 # --- run model + plot proportion of infectives ----
 run_mod(sir_seasonality, harmonic_pars, duration=150) %>%
-  plot_i_prop(t_lower=130)
+  plot_comp_prop(t_lower=140)
 ```
 
-To demonstrate how [harmonic resonance]{.underline} would affect the proportion of infectives, we can set $\beta_1 > 0$ ( $\beta_1 = 0.1$ in this example) to apply seasonal forcing and set $\omega = \frac{1}{n}F$ where $n$ is an integer greater than 1.
+To demonstrate how [sub-harmonic resonance]{.underline} would affect the proportion of infectives, we can set $\beta_1 > 0$ ( $\beta_1 = 0.1$ in this example) to apply seasonal forcing and set $\omega = nF$ where $n$ is an integer greater than 1.
 
 ```{r}
 #| code-fold: true
 #| code-summary: "Code for demonstrating sub-harmonic resonance"
+#| label: fig-sub-harmonic
+#| fig-cap: "Oscillations in I when the natural oscillation period is a multiple of period of forcing"
 subharmonic_pars <- no_forcing_pars
 subharmonic_pars$beta_1 <- 0.1
 
 # compute natural oscillation frequency  
 f_val <- get_f_val(subharmonic_pars)
-subharmonic_pars$omega <- 0.5*f_val
+subharmonic_pars$omega <- 2*f_val
 
 # --- run model + plot proportion of infectives ----
 run_mod(sir_seasonality, subharmonic_pars, duration=150) %>% 
-  plot_i_prop(t_lower = 130)
+  plot_comp_prop(t_lower = 140)
 ```
 
-### Sub-harmonic resonance and multi-annual cycles
+### The anatomy of seasonally forced epidemics
 
-### Stability
+We now take a closer look at the oscillations in the $I$ compartment by re-visting the condition for an epidemic to grow.
 
-Introducing time-dependent contact rate generate a variety of dynamical patterns - depending on parameter values - from simple annual epidemics, to multiannual outbreaks and eventually chaos.
+Recall that when the disease incidence increases, $\frac{dI}{dt} > 0$. After omitting a few steps, we derive the following condition.
+
+$$
+\frac{S(t)}{N} > \frac{\gamma + b}{\beta(t)}
+$$
+
+::: {.callout-note collapse="true"}
+#### Deriving the condition
+
+$$
+\frac{dI}{dt} = \beta(t) \frac{I}{N} S - (b + \gamma)I > 0
+$$
+
+Factoring by $I$, we get
+
+$$
+I(\beta(t) \frac{1}{N} S - b - \gamma) > 0
+$$
+
+Since $I(t) \geq 0$, the condition is true when
+
+$$
+\beta(t) \frac{S}{N}  - b - \gamma > 0
+$$
+
+$$
+\Rightarrow \frac{S}{N} > \frac{b + \gamma}{\beta(t)}
+$$
+:::
+
+In other words, $I(t)$ only increases when the proportion of susceptible is above the threshold $\frac{\gamma + b}{\beta(t)}$.
+
+This plot below visualizes the observed infectives (log-transformed for clarity) and the proportion of susceptible with the threshold $\frac{\gamma + b}{\beta(t)}$. Note that both the plot for infectives and susceptible are color coded by whether $\frac{S(t)}{N} > \frac{b + \gamma}{\beta(t)}$. The parameters are taken from the previous example @fig-harmonic.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for generating the plot"
+library(patchwork)
+
+# compute model output df with threshold 
+harmonic_out <- run_mod(sir_seasonality, harmonic_pars, duration=150) %>% 
+  filter(t>=140) %>% 
+  mutate(
+    # compute beta_t and threshold for the filtered timeframe
+    beta_t = harmonic_pars$beta_0*(
+      1 - harmonic_pars$beta_1*cos(harmonic_pars$omega*t)
+    ),
+    # threshold for disease to spread
+    threshold = (harmonic_pars$gamma + harmonic_pars$b)/beta_t, 
+    # check whether prop of S is above threshold
+    above_threshold = (S/(S + I + R)) > threshold
+  )
+
+# plot for I compartment 
+i_prop_plot <- harmonic_out %>% 
+  plot_comp_prop(comp = "I", t_lower = 140, use_log = TRUE) +
+  geom_point(aes(x = t, y = prop, color = above_threshold), size = 0.8) 
+
+# plot for S compartment compartment with threshold
+s_prop_plot <- harmonic_out %>% 
+  plot_comp_prop(comp="S", t_lower = 140, use_log = FALSE) +
+  geom_point(aes(x = t, y = prop, color = above_threshold), size = 0.8) +
+  geom_line(aes(x = t, y = threshold), 
+            color = "black", linetype = "dashed")
+
+i_prop_plot/s_prop_plot
+```
+
+We can also generate a similar plot using the parameters from @fig-sub-harmonic.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for generating the plot"
+library(patchwork)
+
+# compute model output df with threshold 
+subharmonic_out <- run_mod(sir_seasonality, subharmonic_pars, duration=150) %>% 
+  filter(t>=140) %>% 
+  mutate(
+    # compute beta_t and threshold for the filtered timeframe
+    beta_t = subharmonic_pars$beta_0*(
+      1 - subharmonic_pars$beta_1*cos(subharmonic_pars$omega*t)
+    ),
+    # threshold for disease to spread
+    threshold = subharmonic_pars$gamma/beta_t, 
+    # check whether prop of S is above threshold
+    above_threshold = (S/(S + I + R)) > threshold
+  )
+
+# plot for I compartment 
+i_prop_plot <- subharmonic_out %>% 
+  plot_comp_prop(comp = "I", t_lower = 140, use_log = TRUE) +
+  geom_point(aes(x = t, y = prop, color = above_threshold), size = 0.8) 
+
+# plot for S compartment compartment with threshold
+s_prop_plot <- subharmonic_out %>% 
+  plot_comp_prop(comp="S", t_lower = 140, use_log = FALSE) +
+  geom_point(aes(x = t, y = prop, color = above_threshold), size = 0.8) +
+  geom_line(aes(x = t, y = threshold), 
+            color = "black", linetype = "dashed")
+
+i_prop_plot/s_prop_plot
+```
+
+### Bifurcation diagram
 
 ## Other functional forms for $\beta(t)$
 
-## References
+## References {.unnumbered}
