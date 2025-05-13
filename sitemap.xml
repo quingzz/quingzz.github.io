@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://quingzz.github.io/blog/index.html</loc>
-    <lastmod>2025-05-12T10:13:53.929Z</lastmod>
+    <loc>https://quingzz.github.io/index.html</loc>
+    <lastmod>2025-05-13T10:34:43.727Z</lastmod>
   </url>
   <url>
     <loc>https://quingzz.github.io/blog/visualize_lct/lct_viz.html</loc>
-    <lastmod>2025-05-12T10:13:53.947Z</lastmod>
-  </url>
-  <url>
-    <loc>https://quingzz.github.io/index.html</loc>
-    <lastmod>2025-05-12T10:13:53.948Z</lastmod>
+    <lastmod>2025-05-13T10:34:43.727Z</lastmod>
   </url>
   <url>
     <loc>https://quingzz.github.io/blog/competing_risks/competing_risks.html</loc>
-    <lastmod>2025-05-12T10:13:53.925Z</lastmod>
+    <lastmod>2025-05-13T10:34:43.711Z</lastmod>
+  </url>
+  <url>
+    <loc>https://quingzz.github.io/blog/index.html</loc>
+    <lastmod>2025-05-13T10:34:43.713Z</lastmod>
   </url>
   <url>
     <loc>https://quingzz.github.io/blog/seasonality/seasonality.html</loc>
-    <lastmod>2025-05-12T10:13:53.929Z</lastmod>
+    <lastmod>2025-05-13T10:34:43.714Z</lastmod>
   </url>
 </urlset>
