@@ -106,8 +106,10 @@ The integral for this equation gives the [period]{.underline} and [amplitude]{.u
 Let's first revisit the familiar SIR model, but now we put our focus on $S$ and $I$ compartments
 
 $$
+\begin{cases}
 \frac{dS}{dt} = bN - (\beta(t) \frac{I}{N} + b)S \\
 \frac{dI}{dt} = \beta(t) \frac{I}{N} S - (b + \gamma)I
+\end{cases}
 $$Note that the death and birth rate are assumed to be the same to keep the total population constant.
 
 $\beta(t)$ is defined as $\beta(t) = \beta_0(1- \beta_1 \text{cos}(\omega t))$. Note that minus sign is used so seasonal forcing is at 0 at the start.
@@ -118,7 +120,7 @@ $$
 F^2 = b(\gamma + b)(R_0  - 1) - (\frac{b R_0}{2})^2
 $$
 
-These oscillations is hereby referred to as the [natural oscillations.]{.underline}
+These oscillations are hereby referred to as the [natural oscillations.]{.underline}
 
 When the natural period of oscillations is approximately the same as seasonal forcing period (i.e., $F \approx \omega$ ) we observe [harmonic resonance,]{.underline} where the amplitude of oscillations may be greatly increased.
 
@@ -438,5 +440,204 @@ i_prop_plot/s_prop_plot
 ### Bifurcation diagram
 
 ## Other functional forms for $\beta(t)$
+
+Formulation for $\beta(t)$ may varies to better reflect empirical data or prior knowledge. For example, transmission rate for childhood diseases is assumed to be high during school terms and low otherwise, this assumption is formulated as followed.
+
+$$
+\beta(t) = \frac{\beta_0}{\frac{1}{365} ((1 +  \beta_1)D_+ + (1 - \beta_1)D_-)} (1+\beta_1 \text{Term}(t))
+$$
+
+Where:
+
+-   $\text{Term}(t)$ returns $+1$ when it is school term and $-1$ otherwise.
+
+-   $\beta_1$ is the amplitude of seasonality forcing
+
+-   $\beta_0$ is the mean transmission rate
+
+-   a factor of $\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}$ is multiplied to $\beta_0$ to ensure that $\text{mean}(\beta(t))  = \beta_0$, where:
+
+    -   $D_+$ is the number of school days (in a year)
+
+    -   $D_-$ is the number of holidays (in a year)
+
+The implementation for SIR model with term-based forcing (using R package `odin`) is provided below.
+
+```{r warning=FALSE, message=FALSE, output=FALSE}
+#| code-fold: true
+#| code-summary: "SIR model with Term-based forcing"
+sir_term <- odin2::odin({
+  N <- S + I + R
+  deriv(S) <- b*N - (beta_t*(I/N) + b)*S
+  deriv(I) <-beta_t*(I/N)*S - (b + gamma)*I
+  deriv(R) <- gamma*I - R*b
+
+  # seasonality forcing
+  beta_0 <- parameter(0.4)
+  beta_1 <- parameter(0)
+  
+  school_open <- parameter()
+  school_time <- parameter()
+  school_data_dim <- parameter()
+  dim(school_time) <- school_data_dim
+  dim(school_open) <- school_data_dim
+  
+  term <- interpolate(school_time, school_open, "constant")
+  beta_t <- beta_0*(1 + beta_1*term)
+  
+  # initialize starting population
+  init_S <- parameter(9500)
+  init_I <- parameter(500)
+  gamma <- parameter(0.05)
+  b <- parameter(0.05)
+  
+  initial(S) <- init_S
+  initial(I) <- init_I
+  initial(R) <- 0
+
+})
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Helper to handle school term data"
+get_adjust_factor <- function(b1, formatted_schooldays){
+  # compute number of school days for each term
+  total_school_days <- sapply(formatted_schooldays$school_days, \(pair){
+    pair$max - pair$min + 1
+  })
+  # compute number of holidays for each term
+  total_holidays <- sapply(formatted_schooldays$holidays, \(pair){
+    pair$max - pair$min + 1
+  })
+  
+  adjust_factor <- (1/365)*((1+b1)*sum(total_school_days) + (1-b1)*sum(total_holidays))
+  1/adjust_factor
+}
+
+format_schooldays <- function(school_time, school_open){
+  prev <- 0
+  school_days <- list()
+  holidays <- list()
+  sapply(1:length(school_time), \(i){
+    if(school_open[i] == -1 && school_time[i]>0){
+      school_days[[length(school_days) + 1]] <<- list(min = prev, max = school_time[i]-1)
+      prev <<- school_time[i]
+    }else if (school_open[i] == 1 && school_time[i]>0){
+      holidays[[length(holidays) + 1]] <<- list(min = prev, max = school_time[i]-1)
+      prev <<- school_time[i]
+    }
+  })
+  
+  # handle cases when the end of school time is not the end of the year
+  if(prev < 365){
+    if(school_open[length(school_open)] == -1){
+      holidays[[length(holidays) + 1]] <- list(min = prev, max = 365)
+    }else{
+      school_days[[length(school_days) + 1]] <- list(min = prev, max = 365)
+    }
+  }
+  
+  list(
+    school_days = school_days,
+    holidays = holidays
+  )
+}
+
+# get a list of item, each item is a list of 2, for min x and max x for the annotation
+get_annotate_layers <- function(annotate_range, color = "red", alpha = 0.5){
+  lapply(annotate_range, \(pair){
+    annotate("rect", 
+             xmin = pair$min, xmax = pair$max,
+             ymin = -Inf, ymax = Inf,
+             fill = color, alpha = alpha)
+  })
+}
+```
+
+**Example:** we can try running the model using the following set of parameters
+
+-   $\beta_1 = 0.29$ and $\beta_0 = 0.125$
+
+-   $\gamma = 1/13$ (mean recovery time of 13 days)
+
+-   Initial population: $S(0) = 499900$ and $I(0) = 100$
+
+-   The model is simulated for 365 time units, where each unit is 1 day
+
+For $\text{Term}(t)$, school holidays data for England and Wales is used.
+
+| Holiday          | Model time |
+|------------------|------------|
+| Christmas        | 356-6      |
+| Easter           | 100-115    |
+| Summer           | 200-251    |
+| Autumn Half-term | 300-307    |
+
+The plot below shows how the number of infectives changes over one year, using term-based forcing. Holiday periods are highlighted in red and note that $\beta_0$ is not adjusted.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for term based SIR model"
+#| label: fig-unadjusted-beta
+#| fig-cap: "Changes in I when beta_0 is not adjusted"
+
+school_time <- c(0, 7, 100, 116, 200, 252, 300,308,356)
+school_open <- c(-1, 1, -1, 1,   -1,   1,   -1, 1,-1)
+
+term_pars <- list(
+  school_time = school_time, 
+  school_open = school_open,
+  school_data_dim = length(school_time),
+  beta_0 = 0.125,
+  beta_1 = 0.29,
+  gamma = 1/13,
+  b = 0.02,
+  init_S = 499900,
+  init_I = 100
+  )
+
+# format school data for generating annotation layer
+school_data <- format_schooldays(school_time, school_open)
+
+# run model and plot output
+run_mod(sir_term, term_pars, duration = 365, timestep = 1) %>% 
+  ggplot() +
+    geom_line(aes(x = t, y = I), color = "cornflowerblue") +
+  get_annotate_layers(school_data$holiday, alpha = 0.3) +
+  labs(
+    title = "Number of infectives over a year",
+    x = "Time (days)",
+    y = "Number of infectives"
+  )
+```
+
+Visualization for the same model but with $\beta_0$ now adjusted by the factor $\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}$ is also provided below.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for adjusted beta_0"
+#| label: fig-adjusted-beta
+#| fig-cap: "Changes in I when beta_0 is adjusted"
+
+adjust_factor <- get_adjust_factor(term_pars$beta_1, school_data)
+
+# use adjusted value for beta_0 instead
+adjusted_pars <- term_pars
+adjusted_pars$beta_0 <- adjust_factor*adjusted_pars$beta_0
+
+# run model again and plot
+run_mod(sir_term, adjusted_pars, duration = 365, timestep = 0.5) %>% 
+  ggplot() +
+    geom_line(aes(x = t, y = I), color = "cornflowerblue") +
+  get_annotate_layers(school_data$holiday, alpha = 0.3) +
+  labs(
+    title = "Number of infectives over a year",
+    x = "Time (days)",
+    y = "Number of infectives"
+  )
+```
+
+### Bifurcation diagram
 
 ## References {.unnumbered}
