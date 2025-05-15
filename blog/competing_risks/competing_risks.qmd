@@ -12,7 +12,7 @@ format:
     self-contained: true
 ---
 
-## Intro to competing risks 
+## Intro to competing risks
 
 ### Basic scenario in SIRD
 
@@ -334,9 +334,8 @@ Where:
 
 -   $n$ is the shape parameter for distribution of $T_{I\rightarrow R}$
 
-```{=html}
 <!-- -->
-```
+
 -   $I_{i, j} = 0$ when $i = 0$ or $j = 0$
 
 -   $i<=n$ and $j \leq m$
@@ -411,7 +410,7 @@ plot_sird(odin_mod)
 
 There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations [@hernández2021] or delay differential equation (DDE) [@hong2024].
 
-This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks.
+This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks. This approach has been explored in a previous work by @tallis1994.
 
 ### Competing risks in terms of survival functions
 
@@ -564,12 +563,7 @@ Another way to look at this since the hazard function $h_{I \rightarrow R,D}(t)$
 SIRD model set up:
 
 -   $S \rightarrow I$ follows traditional SIRD definition
-
-```{=html}
-<!-- -->
-```
 -   $T_{I\rightarrow R} \sim \text{Erlang}(\text{rate = }\gamma, \text{shape = }3)$
-
 -   $T_{I\rightarrow D} \sim \text{Erlang}(\text{rate = }\mu, \text{shape = }2)$
 
 Implementation details:
@@ -822,11 +816,7 @@ Basic implementation of SIRD:
 
 SIRD with linear chain trick:
 
--   For implementing Erlang distributed $T_{I \rightarrow R}$ and/or $T_{I \rightarrow D}$ using a system of ODE.
-
-```{=html}
-<!-- -->
-```
+-   Used for implementing Erlang distributed $T_{I \rightarrow R}$ and/or $T_{I \rightarrow D}$ using a system of ODE.
 -   It is useful to frame the problem as a race between homogeneous Poisson processes.
 
 Arbitrary distributed $T_{I \rightarrow R}$ and $T_{I \rightarrow D}$:
