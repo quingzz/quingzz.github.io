@@ -4228,43 +4228,20 @@ P(T_{I \rightarrow R, D} \leq t) = P(T_{I\rightarrow D} \leq t \text{ or } T_{I\
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(D) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>── R CMD INSTALL ───────────────────────────────────────────────────────────────
-* installing *source* package ‘odin0fab44ec’ ...
-** this is package ‘odin0fab44ec’ version ‘0.0.1’
-** using staged installation
-** libs
-using C compiler: ‘gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0’
-gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c odin.c -o odin.o
-odin.c: In function ‘odin_metadata’:
-odin.c:129:18: warning: unused variable ‘internal’ [-Wunused-variable]
-  129 |   odin_internal *internal = odin_get_internal(internal_p, 1);
-      |                  ^~~~~~~~
-odin.c: In function ‘user_get_scalar_int’:
-odin.c:216:47: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘const char *’ [-Wformat=]
-  216 |       Rf_error(&quot;Expected scalar integer for &#39;%d&#39;&quot;, name);
-      |                                              ~^    ~~~~
-      |                                               |    |
-      |                                               int  const char *
-      |                                              %s
-gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
-gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin0fab44ec.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/Rtmpw2JGyw/devtools_install_241f41b08222/00LOCK-file241f5c20243/00new/odin0fab44ec/libs
-** checking absolute paths in shared objects and dynamic libraries
-* DONE (odin0fab44ec)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize simulation time ---- </span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>simulationDuration <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulationDuration)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize model with init values ---- </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>basic_sird <span class="ot">&lt;-</span> model_generator<span class="sc">$</span><span class="fu">new</span>(</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_S =</span> <span class="dv">1000</span>, </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_I =</span> <span class="dv">50</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- run model and plot ---- </span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>basic_sird <span class="ot">&lt;-</span> basic_sird<span class="sc">$</span><span class="fu">run</span>(times) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(basic_sird)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize simulation time ---- </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>simulationDuration <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulationDuration)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize model with init values ---- </span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>basic_sird <span class="ot">&lt;-</span> model_generator<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_S =</span> <span class="dv">1000</span>, </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_I =</span> <span class="dv">50</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- run model and plot ---- </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>basic_sird <span class="ot">&lt;-</span> basic_sird<span class="sc">$</span><span class="fu">run</span>(times) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(basic_sird)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-basic-sird" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -4431,81 +4408,58 @@ dI_{i,j} = \gamma I_{i-1, j} + \mu I_{i, j-1} - (\gamma + \mu) I_{i,j}
 </ul>
 <p>Implementation in R using <code>odin</code> package</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sird_lct <span class="ot">&lt;-</span> <span class="fu">odin</span>({</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ODE in odin syntax</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(S) <span class="ot">&lt;-</span> <span class="sc">-</span> beta <span class="sc">*</span> ((I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I31 <span class="sc">+</span> I32)<span class="sc">/</span>N) <span class="sc">*</span> S</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># all incoming population from S go to I11</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I11) <span class="ot">&lt;-</span> beta <span class="sc">*</span> ((I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I31 <span class="sc">+</span> I32)<span class="sc">/</span>N) <span class="sc">*</span> S <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I11</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># sub-compartments for I</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I12) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I11 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I12</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I21) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I11 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I21</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I22) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I12 <span class="sc">+</span> mu<span class="sc">*</span>I21 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I22</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I31) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I21 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I31</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I32) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I31 <span class="sc">+</span> gamma<span class="sc">*</span>I22 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I32</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># handle R and D compartments</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(R) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I31 <span class="sc">+</span> gamma<span class="sc">*</span>I32</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(D) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I12 <span class="sc">+</span> mu<span class="sc">*</span>I22 <span class="sc">+</span> mu<span class="sc">*</span>I32</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># input parameters</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  init_S <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">0</span>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  init_I <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">0</span>)</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.4</span>)</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  gamma <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.2</span>)</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.1</span>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize values</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> init_S <span class="sc">+</span> init_I</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(S) <span class="ot">&lt;-</span> init_S</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I11) <span class="ot">&lt;-</span> init_I</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I12) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I21) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I22) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I31) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I32) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(D) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>── R CMD INSTALL ───────────────────────────────────────────────────────────────
-* installing *source* package ‘odin1356bc86’ ...
-** this is package ‘odin1356bc86’ version ‘0.0.1’
-** using staged installation
-** libs
-using C compiler: ‘gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0’
-gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c odin.c -o odin.o
-odin.c: In function ‘odin_metadata’:
-odin.c:149:18: warning: unused variable ‘internal’ [-Wunused-variable]
-  149 |   odin_internal *internal = odin_get_internal(internal_p, 1);
-      |                  ^~~~~~~~
-odin.c: In function ‘user_get_scalar_int’:
-odin.c:261:47: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘const char *’ [-Wformat=]
-  261 |       Rf_error(&quot;Expected scalar integer for &#39;%d&#39;&quot;, name);
-      |                                              ~^    ~~~~
-      |                                               |    |
-      |                                               int  const char *
-      |                                              %s
-gcc -std=gnu2x -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c registration.c -o registration.o
-gcc -std=gnu2x -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin1356bc86.so odin.o registration.o -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/Rtmpw2JGyw/devtools_install_241f3abd6993/00LOCK-file241f3bb24952/00new/odin1356bc86/libs
-** checking absolute paths in shared objects and dynamic libraries
-* DONE (odin1356bc86)</code></pre>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sird_lct <span class="ot">&lt;-</span> <span class="fu">odin</span>({</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ODE in odin syntax</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(S) <span class="ot">&lt;-</span> <span class="sc">-</span> beta <span class="sc">*</span> ((I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I31 <span class="sc">+</span> I32)<span class="sc">/</span>N) <span class="sc">*</span> S</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># all incoming population from S go to I11</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I11) <span class="ot">&lt;-</span> beta <span class="sc">*</span> ((I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I31 <span class="sc">+</span> I32)<span class="sc">/</span>N) <span class="sc">*</span> S <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I11</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># sub-compartments for I</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I12) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I11 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I12</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I21) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I11 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I21</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I22) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I12 <span class="sc">+</span> mu<span class="sc">*</span>I21 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I22</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I31) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I21 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I31</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(I32) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I31 <span class="sc">+</span> gamma<span class="sc">*</span>I22 <span class="sc">-</span> (gamma <span class="sc">+</span> mu)<span class="sc">*</span>I32</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># handle R and D compartments</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(R) <span class="ot">&lt;-</span> gamma<span class="sc">*</span>I31 <span class="sc">+</span> gamma<span class="sc">*</span>I32</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deriv</span>(D) <span class="ot">&lt;-</span> mu<span class="sc">*</span>I12 <span class="sc">+</span> mu<span class="sc">*</span>I22 <span class="sc">+</span> mu<span class="sc">*</span>I32</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># input parameters</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  init_S <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">0</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  init_I <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="dv">0</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.4</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  gamma <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.2</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">user</span>(<span class="fl">0.1</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize values</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> init_S <span class="sc">+</span> init_I</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(S) <span class="ot">&lt;-</span> init_S</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I11) <span class="ot">&lt;-</span> init_I</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I12) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I21) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I22) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I31) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(I32) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initial</span>(D) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize simulation time ---- </span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>simulationDuration <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulationDuration)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize model with init values ---- </span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> sird_lct<span class="sc">$</span><span class="fu">new</span>(</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_S =</span> <span class="dv">999</span>, </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_I =</span> <span class="dv">1</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- run model and plot ---- </span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> odin_mod<span class="sc">$</span><span class="fu">run</span>(times) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">I =</span> I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I32 <span class="sc">+</span> I31</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(odin_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize simulation time ---- </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>simulationDuration <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulationDuration)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- initialize model with init values ---- </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> sird_lct<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_S =</span> <span class="dv">999</span>, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">init_I =</span> <span class="dv">1</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- run model and plot ---- </span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>odin_mod <span class="ot">&lt;-</span> odin_mod<span class="sc">$</span><span class="fu">run</span>(times) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">I =</span> I11 <span class="sc">+</span> I12 <span class="sc">+</span> I21 <span class="sc">+</span> I22 <span class="sc">+</span> I32 <span class="sc">+</span> I31</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(odin_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-lct-sird" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -4694,51 +4648,51 @@ Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is 
 <div class="cell">
 <details class="code-fold">
 <summary>Function to compute hazard rates</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Compute hazard rate over dwell time</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param dist_func - R distribution function for dwell time (pexp, pgamma, etc.)</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param ... - parameters for dist_func</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param timestep - timestep used for the discrete model</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param error_tolerance - how close to 1 the cumulative probability must be</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @return probability distribution, cumulative prob distribution and hazard rates</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>compute_hazard <span class="ot">&lt;-</span> <span class="cf">function</span>(dist_func,..., <span class="at">timestep=</span><span class="fl">0.05</span>, <span class="at">error_tolerance=</span><span class="fl">0.0001</span>){</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  maxtime <span class="ot">&lt;-</span> timestep</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  prev_prob <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  hazard_rates <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  cumulative_dist <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  prob_dist <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span>(<span class="cn">TRUE</span>){</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>     <span class="co"># get current cumulative prob and check whether it is sufficiently close to 1</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>     temp_prob <span class="ot">&lt;-</span>  <span class="fu">if_else</span>(</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>       <span class="fu">dist_func</span>(maxtime, ...) <span class="sc">&lt;</span> (<span class="dv">1</span> <span class="sc">-</span> error_tolerance), </span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>       <span class="fu">dist_func</span>(maxtime, ...), </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>       <span class="dv">1</span>);</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>     cumulative_dist <span class="ot">&lt;-</span> <span class="fu">c</span>(cumulative_dist, temp_prob)</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>     </span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>     <span class="co"># get f(t)</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>     curr_prob <span class="ot">&lt;-</span> temp_prob <span class="sc">-</span> prev_prob</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>     prob_dist <span class="ot">&lt;-</span> <span class="fu">c</span>(prob_dist, curr_prob)</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>     </span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>     <span class="co"># compute h(t) = f(t)/S(t)</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>     curr_hazard <span class="ot">&lt;-</span> curr_prob<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>prev_prob)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>     hazard_rates <span class="ot">&lt;-</span> <span class="fu">c</span>(hazard_rates, curr_hazard)</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>     </span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>     prev_prob <span class="ot">&lt;-</span> temp_prob</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>     maxtime <span class="ot">&lt;-</span> maxtime <span class="sc">+</span> timestep</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>     </span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>     <span class="cf">if</span>(temp_prob <span class="sc">==</span> <span class="dv">1</span>){</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>       <span class="cf">break</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>     }</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob_dist =</span> prob_dist,</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">cumulative_dist =</span> cumulative_dist,</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">hazard_rates =</span> hazard_rates</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Compute hazard rate over dwell time</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param dist_func - R distribution function for dwell time (pexp, pgamma, etc.)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param ... - parameters for dist_func</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param timestep - timestep used for the discrete model</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param error_tolerance - how close to 1 the cumulative probability must be</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @return probability distribution, cumulative prob distribution and hazard rates</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>compute_hazard <span class="ot">&lt;-</span> <span class="cf">function</span>(dist_func,..., <span class="at">timestep=</span><span class="fl">0.05</span>, <span class="at">error_tolerance=</span><span class="fl">0.0001</span>){</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  maxtime <span class="ot">&lt;-</span> timestep</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  prev_prob <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  hazard_rates <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  cumulative_dist <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  prob_dist <span class="ot">&lt;-</span> <span class="fu">numeric</span>()</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span>(<span class="cn">TRUE</span>){</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>     <span class="co"># get current cumulative prob and check whether it is sufficiently close to 1</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>     temp_prob <span class="ot">&lt;-</span>  <span class="fu">if_else</span>(</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>       <span class="fu">dist_func</span>(maxtime, ...) <span class="sc">&lt;</span> (<span class="dv">1</span> <span class="sc">-</span> error_tolerance), </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>       <span class="fu">dist_func</span>(maxtime, ...), </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>       <span class="dv">1</span>);</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>     cumulative_dist <span class="ot">&lt;-</span> <span class="fu">c</span>(cumulative_dist, temp_prob)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>     <span class="co"># get f(t)</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>     curr_prob <span class="ot">&lt;-</span> temp_prob <span class="sc">-</span> prev_prob</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>     prob_dist <span class="ot">&lt;-</span> <span class="fu">c</span>(prob_dist, curr_prob)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>     <span class="co"># compute h(t) = f(t)/S(t)</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>     curr_hazard <span class="ot">&lt;-</span> curr_prob<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>prev_prob)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>     hazard_rates <span class="ot">&lt;-</span> <span class="fu">c</span>(hazard_rates, curr_hazard)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>     prev_prob <span class="ot">&lt;-</span> temp_prob</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>     maxtime <span class="ot">&lt;-</span> maxtime <span class="sc">+</span> timestep</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>     <span class="cf">if</span>(temp_prob <span class="sc">==</span> <span class="dv">1</span>){</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>       <span class="cf">break</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>     }</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob_dist =</span> prob_dist,</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">cumulative_dist =</span> cumulative_dist,</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">hazard_rates =</span> hazard_rates</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -4755,89 +4709,75 @@ Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is 
 <div class="cell">
 <details class="code-fold">
 <summary>SIRD model with hazard rates</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Install packages -----</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   &quot;odin2&quot;,</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   repos = c(&quot;https://mrc-ide.r-universe.dev&quot;, &quot;https://cloud.r-project.org&quot;))</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   &quot;dust2&quot;,</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   repos = c(&quot;https://mrc-ide.r-universe.dev&quot;, &quot;https://cloud.r-project.org&quot;))</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>sird_mod <span class="ot">&lt;-</span> odin2<span class="sc">::</span><span class="fu">odin</span>(</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Define algo to update compartments here ---------</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># classic definition of S-&gt;I transition </span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(S) <span class="ot">&lt;-</span> S <span class="sc">-</span> dt <span class="sc">*</span> S <span class="sc">*</span> beta <span class="sc">*</span> <span class="fu">sum</span>(I) <span class="sc">/</span> N</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(I[<span class="dv">1</span>]) <span class="ot">&lt;-</span> dt <span class="sc">*</span> S <span class="sc">*</span> beta<span class="sc">*</span> <span class="fu">sum</span>(I)<span class="sc">/</span>N</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># transprob is basically h(tau)</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># starting from 2: to simulate individuals staying in I for another timestep</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(I[<span class="dv">2</span><span class="sc">:</span>r_maxtime]) <span class="ot">&lt;-</span> I[i<span class="dv">-1</span>]<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>transprob[i<span class="dv">-1</span>])</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_to_R) <span class="ot">&lt;-</span> r_maxtime</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    I_to_R[<span class="dv">1</span><span class="sc">:</span>r_maxtime] <span class="ot">&lt;-</span> r_hazard[i]<span class="sc">*</span>I[i]</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    sum_I_to_R <span class="ot">&lt;-</span> <span class="fu">sum</span>(I_to_R)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(R) <span class="ot">&lt;-</span> R <span class="sc">+</span> sum_I_to_R</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_to_D) <span class="ot">&lt;-</span> d_maxtime</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    I_to_D[<span class="dv">1</span><span class="sc">:</span>d_maxtime] <span class="ot">&lt;-</span> d_hazard[i]<span class="sc">*</span>I[i]</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    sum_I_to_D <span class="ot">&lt;-</span> <span class="fu">sum</span>(I_to_D)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(D) <span class="ot">&lt;-</span> D <span class="sc">+</span> sum_I_to_D</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print(&quot;I to R {sum_I_to_R} I to D {sum_I_to_D}&quot;)</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># initial population</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(S) <span class="ot">&lt;-</span> S_init</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(I[]) <span class="ot">&lt;-</span> I_init[i]</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    maxtime <span class="ot">&lt;-</span> <span class="fu">max</span>(r_maxtime, d_maxtime)</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I) <span class="ot">&lt;-</span> maxtime</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> R_init</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(D) <span class="ot">&lt;-</span> D_init</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Inputs -------</span></span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dwell time distribution of r </span></span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    r_hazard<span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    r_maxtime <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(r_hazard) <span class="ot">&lt;-</span> r_maxtime</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dwell time distribution of d</span></span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    d_hazard <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    d_maxtime <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(d_hazard) <span class="ot">&lt;-</span> d_maxtime</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># initial populations</span></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    S_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    I_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_init) <span class="ot">&lt;-</span> maxtime</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    R_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    D_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">parameter</span>(<span class="dv">1000</span>)</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Compute out transition (i.e. hazard rate) here --------</span></span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># computing overall h(tau) for I</span></span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(transprob) <span class="ot">&lt;-</span> maxtime</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>    mintime <span class="ot">&lt;-</span> <span class="fu">min</span>(r_maxtime, d_maxtime)</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    transprob[<span class="dv">1</span><span class="sc">:</span>mintime] <span class="ot">&lt;-</span> r_hazard[i] <span class="sc">+</span> d_hazard[i]</span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># handle scenarios where maximum dwell time in R&gt;D or maximum dwell time in D&lt;R</span></span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    transprob[(mintime<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>maxtime] <span class="ot">&lt;-</span> <span class="cf">if</span>(i<span class="sc">&gt;</span>r_maxtime) d_hazard[i] <span class="cf">else</span> r_hazard[i]</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Install packages -----</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   &quot;odin2&quot;,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   repos = c(&quot;https://mrc-ide.r-universe.dev&quot;, &quot;https://cloud.r-project.org&quot;))</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   &quot;dust2&quot;,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   repos = c(&quot;https://mrc-ide.r-universe.dev&quot;, &quot;https://cloud.r-project.org&quot;))</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>sird_mod <span class="ot">&lt;-</span> odin2<span class="sc">::</span><span class="fu">odin</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Define algo to update compartments here ---------</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># classic definition of S-&gt;I transition </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(S) <span class="ot">&lt;-</span> S <span class="sc">-</span> dt <span class="sc">*</span> S <span class="sc">*</span> beta <span class="sc">*</span> <span class="fu">sum</span>(I) <span class="sc">/</span> N</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(I[<span class="dv">1</span>]) <span class="ot">&lt;-</span> dt <span class="sc">*</span> S <span class="sc">*</span> beta<span class="sc">*</span> <span class="fu">sum</span>(I)<span class="sc">/</span>N</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># transprob is basically h(tau)</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># starting from 2: to simulate individuals staying in I for another timestep</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(I[<span class="dv">2</span><span class="sc">:</span>r_maxtime]) <span class="ot">&lt;-</span> I[i<span class="dv">-1</span>]<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>transprob[i<span class="dv">-1</span>])</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_to_R) <span class="ot">&lt;-</span> r_maxtime</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    I_to_R[<span class="dv">1</span><span class="sc">:</span>r_maxtime] <span class="ot">&lt;-</span> r_hazard[i]<span class="sc">*</span>I[i]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    sum_I_to_R <span class="ot">&lt;-</span> <span class="fu">sum</span>(I_to_R)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(R) <span class="ot">&lt;-</span> R <span class="sc">+</span> sum_I_to_R</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_to_D) <span class="ot">&lt;-</span> d_maxtime</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    I_to_D[<span class="dv">1</span><span class="sc">:</span>d_maxtime] <span class="ot">&lt;-</span> d_hazard[i]<span class="sc">*</span>I[i]</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    sum_I_to_D <span class="ot">&lt;-</span> <span class="fu">sum</span>(I_to_D)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(D) <span class="ot">&lt;-</span> D <span class="sc">+</span> sum_I_to_D</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print(&quot;I to R {sum_I_to_R} I to D {sum_I_to_D}&quot;)</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># initial population</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(S) <span class="ot">&lt;-</span> S_init</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(I[]) <span class="ot">&lt;-</span> I_init[i]</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    maxtime <span class="ot">&lt;-</span> <span class="fu">max</span>(r_maxtime, d_maxtime)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I) <span class="ot">&lt;-</span> maxtime</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(R) <span class="ot">&lt;-</span> R_init</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initial</span>(D) <span class="ot">&lt;-</span> D_init</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Inputs -------</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dwell time distribution of r </span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    r_hazard<span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    r_maxtime <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(r_hazard) <span class="ot">&lt;-</span> r_maxtime</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dwell time distribution of d</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    d_hazard <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    d_maxtime <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(d_hazard) <span class="ot">&lt;-</span> d_maxtime</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># initial populations</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    S_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    I_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(I_init) <span class="ot">&lt;-</span> maxtime</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>    R_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    D_init <span class="ot">&lt;-</span> <span class="fu">parameter</span>()</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">parameter</span>(<span class="dv">1000</span>)</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ----- Compute out transition (i.e. hazard rate) here --------</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># computing overall h(tau) for I</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(transprob) <span class="ot">&lt;-</span> maxtime</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>    mintime <span class="ot">&lt;-</span> <span class="fu">min</span>(r_maxtime, d_maxtime)</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>    transprob[<span class="dv">1</span><span class="sc">:</span>mintime] <span class="ot">&lt;-</span> r_hazard[i] <span class="sc">+</span> d_hazard[i]</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># handle scenarios where maximum dwell time in R&gt;D or maximum dwell time in D&lt;R</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    transprob[(mintime<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>maxtime] <span class="ot">&lt;-</span> <span class="cf">if</span>(i<span class="sc">&gt;</span>r_maxtime) d_hazard[i] <span class="cf">else</span> r_hazard[i]</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>── R CMD INSTALL ───────────────────────────────────────────────────────────────
-* installing *source* package ‘odin.system66b5e4e9’ ...
-** this is package ‘odin.system66b5e4e9’ version ‘0.0.1’
-** using staged installation
-** libs
-using C++ compiler: ‘g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0’
-g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c cpp11.cpp -o cpp11.o
-g++ -std=gnu++17 -I&quot;/opt/R/4.5.0/lib/R/include&quot; -DNDEBUG  -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/cpp11/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/dust2/include&#39; -I&#39;/home/runner/work/quingzz.github.io/quingzz.github.io/renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/monty/include&#39; -I/usr/local/include   -DHAVE_INLINE -fopenmp  -fpic  -g -O2  -Wall -pedantic  -c dust.cpp -o dust.o
-g++ -std=gnu++17 -shared -L/opt/R/4.5.0/lib/R/lib -L/usr/local/lib -o odin.system66b5e4e9.so cpp11.o dust.o -fopenmp -L/opt/R/4.5.0/lib/R/lib -lR
-installing to /tmp/Rtmpw2JGyw/devtools_install_241f726b718d/00LOCK-dust_241f165752b1/00new/odin.system66b5e4e9/libs
-** checking absolute paths in shared objects and dynamic libraries
-* DONE (odin.system66b5e4e9)</code></pre>
-</div>
 </div>
 </section>
 <section id="run-the-model" class="level4" data-number="3.3.3">
@@ -4846,64 +4786,64 @@ installing to /tmp/Rtmpw2JGyw/devtools_install_241f726b718d/00LOCK-dust_241f1657
 <div class="cell">
 <details class="code-fold">
 <summary>Model config</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ----- modeling configurations -----</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>mod_config <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_dist =</span> pgamma,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_params =</span> <span class="fu">list</span>(<span class="at">rate=</span><span class="fl">0.2</span>, <span class="at">shape=</span><span class="dv">3</span>),</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_dist =</span> pgamma,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_params =</span> <span class="fu">list</span>(<span class="at">rate=</span><span class="fl">0.1</span>, <span class="at">shape=</span><span class="dv">2</span>),</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.4</span>,</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> <span class="dv">999</span>,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> <span class="dv">1</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">0</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">D =</span> <span class="dv">0</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>timestep <span class="ot">&lt;-</span>  <span class="fl">0.05</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>simulation_duration <span class="ot">&lt;-</span> <span class="dv">50</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ----- modeling configurations -----</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mod_config <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_dist =</span> pgamma,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_params =</span> <span class="fu">list</span>(<span class="at">rate=</span><span class="fl">0.2</span>, <span class="at">shape=</span><span class="dv">3</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_dist =</span> pgamma,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_params =</span> <span class="fu">list</span>(<span class="at">rate=</span><span class="fl">0.1</span>, <span class="at">shape=</span><span class="dv">2</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.4</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> <span class="dv">999</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> <span class="dv">1</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">0</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">D =</span> <span class="dv">0</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>timestep <span class="ot">&lt;-</span>  <span class="fl">0.05</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>simulation_duration <span class="ot">&lt;-</span> <span class="dv">50</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Run model</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Compute hazard rates ----- </span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>r_hazard <span class="ot">&lt;-</span> <span class="fu">compute_hazard</span>(mod_config<span class="sc">$</span>r_dist, </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rate=</span>mod_config<span class="sc">$</span>r_params<span class="sc">$</span>rate, </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape=</span>mod_config<span class="sc">$</span>r_params<span class="sc">$</span>shape)<span class="sc">$</span>hazard_rates</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>d_hazard <span class="ot">&lt;-</span> <span class="fu">compute_hazard</span>(mod_config<span class="sc">$</span>d_dist, </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rate=</span>mod_config<span class="sc">$</span>d_params<span class="sc">$</span>rate, </span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape=</span>mod_config<span class="sc">$</span>d_params<span class="sc">$</span>shape)<span class="sc">$</span>hazard_rates</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Run model and plot ----- </span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize params</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>odin_pars <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta =</span>  mod_config<span class="sc">$</span>beta,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span>  mod_config<span class="sc">$</span>N,</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_hazard =</span> r_hazard,</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_maxtime =</span> <span class="fu">length</span>(r_hazard),</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_hazard =</span> d_hazard,</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_maxtime =</span> <span class="fu">length</span>(d_hazard),</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">S_init =</span> mod_config<span class="sc">$</span>S,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">I_init =</span> <span class="fu">array</span>( <span class="fu">c</span>(mod_config<span class="sc">$</span>I, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">max</span>(<span class="fu">length</span>(r_hazard), <span class="fu">length</span>(d_hazard))<span class="sc">-</span><span class="dv">1</span>)) ),</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">R_init =</span> mod_config<span class="sc">$</span>R,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">D_init =</span> mod_config<span class="sc">$</span>D</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co"># run model</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>t_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulation_duration, <span class="fl">0.25</span>)</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>sird <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_system_create</span>(sird_mod, odin_pars, <span class="at">dt =</span> timestep)</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>dust2<span class="sc">::</span><span class="fu">dust_system_set_state_initial</span>(sird)</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_system_simulate</span>(sird, t_seq)</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_unpack_state</span>(sird, out)</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>h_result <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">t =</span> t_seq,</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> out<span class="sc">$</span>S,</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> <span class="fu">colSums</span>(out<span class="sc">$</span>I),</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> out<span class="sc">$</span>R,</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">D =</span> out<span class="sc">$</span>D</span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="co"># plot output </span></span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(h_result, <span class="at">ylab=</span><span class="st">&quot;Count&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Compute hazard rates ----- </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>r_hazard <span class="ot">&lt;-</span> <span class="fu">compute_hazard</span>(mod_config<span class="sc">$</span>r_dist, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rate=</span>mod_config<span class="sc">$</span>r_params<span class="sc">$</span>rate, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape=</span>mod_config<span class="sc">$</span>r_params<span class="sc">$</span>shape)<span class="sc">$</span>hazard_rates</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>d_hazard <span class="ot">&lt;-</span> <span class="fu">compute_hazard</span>(mod_config<span class="sc">$</span>d_dist, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rate=</span>mod_config<span class="sc">$</span>d_params<span class="sc">$</span>rate, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape=</span>mod_config<span class="sc">$</span>d_params<span class="sc">$</span>shape)<span class="sc">$</span>hazard_rates</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Run model and plot ----- </span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize params</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>odin_pars <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta =</span>  mod_config<span class="sc">$</span>beta,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span>  mod_config<span class="sc">$</span>N,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_hazard =</span> r_hazard,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_maxtime =</span> <span class="fu">length</span>(r_hazard),</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_hazard =</span> d_hazard,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_maxtime =</span> <span class="fu">length</span>(d_hazard),</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">S_init =</span> mod_config<span class="sc">$</span>S,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">I_init =</span> <span class="fu">array</span>( <span class="fu">c</span>(mod_config<span class="sc">$</span>I, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">max</span>(<span class="fu">length</span>(r_hazard), <span class="fu">length</span>(d_hazard))<span class="sc">-</span><span class="dv">1</span>)) ),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">R_init =</span> mod_config<span class="sc">$</span>R,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">D_init =</span> mod_config<span class="sc">$</span>D</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># run model</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>t_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, simulation_duration, <span class="fl">0.25</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>sird <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_system_create</span>(sird_mod, odin_pars, <span class="at">dt =</span> timestep)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>dust2<span class="sc">::</span><span class="fu">dust_system_set_state_initial</span>(sird)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_system_simulate</span>(sird, t_seq)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> dust2<span class="sc">::</span><span class="fu">dust_unpack_state</span>(sird, out)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>h_result <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">t =</span> t_seq,</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> out<span class="sc">$</span>S,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> <span class="fu">colSums</span>(out<span class="sc">$</span>I),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> out<span class="sc">$</span>R,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">D =</span> out<span class="sc">$</span>D</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># plot output </span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_sird</span>(h_result, <span class="at">ylab=</span><span class="st">&quot;Count&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -4920,7 +4860,7 @@ installing to /tmp/Rtmpw2JGyw/devtools_install_241f726b718d/00LOCK-dust_241f1657
 <p><code>denim</code> R package implements this approach to handle arbitrary dwell time distribution, and provide a generalized API for scalable models.</p>
 <p>Refers to the documentation <a href="https://drthinhong.com/denim/">here</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: include model implemented in denim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: include model implemented in denim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
