@@ -82,10 +82,7 @@ plot_sird <- function(data, ylab="Proportion"){
 }
 ```
 
-```{r message=FALSE, warning=FALSE}
-#| label: fig-basic-sird
-#| fig-cap: "Basic SIRD"
-
+```{r message=FALSE, warning=FALSE, output=FALSE}
 # ---- Model definition using odin ---
 model_generator <- odin::odin({
   # ODE in odin syntax
@@ -108,7 +105,11 @@ model_generator <- odin::odin({
   initial(R) <- 0
   initial(D) <- 0
 })
+```
 
+```{r}
+#| label: fig-basic-sird
+#| fig-cap: "Basic SIRD"
 # --- initialize simulation time ---- 
 simulationDuration <- 50
 times <- seq(0, simulationDuration)
@@ -350,9 +351,7 @@ Model set up for this example is as followed
 
 Implementation in R using `odin` package
 
-```{r message=FALSE, warning=FALSE}
-#| label: fig-lct-sird
-#| fig-cap: "SIRD with LCT"
+```{r message=FALSE, warning=FALSE, output=FALSE}
 sird_lct <- odin({
   # ODE in odin syntax
   deriv(S) <- - beta * ((I11 + I12 + I21 + I22 + I31 + I32)/N) * S
@@ -387,7 +386,11 @@ sird_lct <- odin({
   initial(R) <- 0
   initial(D) <- 0
 })
+```
 
+```{r}
+#| label: fig-lct-sird
+#| fig-cap: "SIRD with LCT"
 # --- initialize simulation time ---- 
 simulationDuration <- 50
 times <- seq(0, simulationDuration)
@@ -651,7 +654,7 @@ Since we are dealing with 2 out compartments ($R$ and $D$), the maximum dwell ti
 
 An implementation in R using `odin2` package is provided below.
 
-```{r  message=FALSE, warning=FALSE}
+```{r  message=FALSE, warning=FALSE, output=FALSE}
 #| code-fold: true
 #| code-summary: "SIRD model with hazard rates"
 
