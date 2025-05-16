@@ -12,9 +12,13 @@ format:
 bibliography: references.bib
 ---
 
-```{r message=FALSE, warning=FALSE}
-library(tidyverse)
-```
+::: callout-important
+## Disclaimer
+
+The content of this blog is mostly based on *Chapter 5 - Temporally Forced Model* of the book "Modeling Infectious Diseases in Human and Animals" by @keeling2008.
+
+The intended purpose of this blog is to summarize the content and provide reproducible code/model implementations in R. For a more detailed explanation on the topic, please refer to the source material.
+:::
 
 ## Background
 
@@ -128,7 +132,7 @@ Looking at @eq-seaforce-amp, when forcing is relatively small, the **amplificati
 
 When natural period of oscillations $\frac{1}{F}$ is close to an integer multiple of period of forcing $\frac{1}{\omega}$ (i.e. $\frac{1}{F} \approx n \frac{1}{\omega}$), we observe a phenomenon called [sub-harmonic resonance]{.underline}. Under this phenomenon, the observed period of oscilations is longer than that of forcing.
 
-Changes in $\beta_1$ and $R_0$ can also lead to qualitatively different epidemic patterns.
+**Changes in** $\beta_1$ **and** $R_0$ can also lead to qualitatively different epidemic patterns.
 
 📌 Introducing time-dependent contact rate generate a variety of dynamical patterns - depending on parameter values - from simple annual epidemics, to multi-annual outbreaks and eventually chaos.
 
@@ -165,9 +169,10 @@ sir_seasonality <- odin2::odin({
 })
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #| code-fold: true
 #| code-summary: "Helper functions"
+library(tidyverse)
 
 # helper function to compute F 
 get_f_val <- function(params, R_0=NULL){
@@ -455,7 +460,7 @@ Where:
 
 -   $\beta_0$ is the mean transmission rate
 
--   a factor of $\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}$ is multiplied to $\beta_0$ to ensure that $\text{mean}(\beta(t))  = \beta_0$, where:
+-   a factor of $\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}$ is multiplied to $\beta_0$ to ensure that $\text{mean}(\beta(t)) = \beta_0$, where:
 
     -   $D_+$ is the number of school days (in a year)
 
