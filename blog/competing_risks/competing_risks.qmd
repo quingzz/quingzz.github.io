@@ -516,7 +516,7 @@ Where the system of derivatives to describe the dynamics of $X$ and $O_i$ is as 
 
 $$
 \begin{cases}
-\frac{dX(t)}{dt} = - \int_{0}^{\tau} h_X(\tau)*X(t, \tau) d\tau \\
+\frac{dX(t)}{dt} = - \int_{0}^{\tau} h_X(\tau)*X(t, \tau) d\tau = - \int_{0}^{\tau} \sum_{i=1}^{n} h_{X \rightarrow O_i}(\tau)*X(t, \tau) d\tau \\
 \frac{dO_1(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
 \vdots \\
 \frac{dO_n(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
