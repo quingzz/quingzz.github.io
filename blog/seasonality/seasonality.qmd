@@ -60,7 +60,8 @@ Where:
 
 -   $\omega$ controls the period of forcing $\frac{2\pi}{\text{period in time unit}}$ (when period of forcing is 1 year, time unit is in week, $\omega = \frac{2\pi}{52}$)
 
-```{r, include=FALSE}
+```{r, include=FALSE, eval=FALSE}
+library(tidyverse)
 beta_0 <- 0.2
 beta_1 <- 0.5
 # 2*pi/(weeks per year)
