@@ -445,6 +445,8 @@ i_prop_plot/s_prop_plot
 
 ### Bifurcation diagram
 
+//TBD:
+
 ## Other functional forms for $\beta(t)$
 
 Formulation for $\beta(t)$ may varies to better reflect empirical data or prior knowledge. For example, transmission rate for childhood diseases is assumed to be high during school terms and low otherwise, this assumption is formulated as followed.
@@ -466,6 +468,47 @@ Where:
     -   $D_+$ is the number of school days (in a year)
 
     -   $D_-$ is the number of holidays (in a year)
+
+::: {.callout-note collapse="true"}
+## A closer look at the factor for \$\\beta_0\$
+
+For the un-adjusted model, the formulation for $\beta(t)$ is as followed
+
+$$
+\beta(t) = \beta_0 (1+\beta_1 \text{Term}(t))
+$$
+
+The problem of this formulation arises when there is a large discrepancy between number of days where $\text{Term}(t) = 1$ and $\text{Term}(t) = -1$, in which case the mean of $\beta(t)$ will deviate from $\beta_0$.
+
+The mean for $\beta(t)$ assuming a period of 1 year can be estimated by
+
+$$
+\frac{1}{365} \sum_1^{365} \beta_0 (1 + \beta_1 * \text{Term}(t))
+$$ $$
+\frac{1}{365} \beta_0 \sum_{t=1}^{365} 1 + \beta_1 * \text{Term}(t)
+$$
+
+Denote $D_+$ as the number of days where $\text{Term}(t) = 1$ and $D_-$ as the number of days where $\text{Term}(t) = -1$, also recall that $\sum_{t = 1}^{365} 1 = 365$. We can rewrite the formula into
+
+$$
+\frac{1}{365} \beta_0 (365 + \beta_1 D_+ - \beta_1 D_-)
+$$
+
+For example, if a year have 250 days where $\text{Term}(t) = 1$, with the settings $\beta_0 = 0.1$ and $\beta_1 = 2$, mean of $\beta(t)$ over the year can be computed by.
+
+$$
+\frac{1}{365} \beta_0 (365 + 250\beta_1 - 115\beta_1) \approx 0.17
+$$
+
+We can also rewrite that $365 = D_+ + D_-$
+
+$$
+\frac{1}{365} \beta_0 (D_+ + D_- + \beta_1 D_+ - \beta_1 D_-) = \\
+\frac{1}{365} \beta_0 ((1 + \beta_1)D_+  + (1- \beta_1) D_-)
+$$
+
+Thus, for the mean of $\beta(t)$ to be equal to $\beta_0$ we need to multiply a factor $\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}$
+:::
 
 The implementation for SIR model with term-based forcing (using R package `odin`) is provided below.
 
@@ -646,4 +689,5 @@ run_mod(sir_term, adjusted_pars, duration = 365, timestep = 0.5) %>%
 
 ### Bifurcation diagram
 
+//TBD:
 ## References {.unnumbered}

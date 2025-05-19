@@ -415,7 +415,7 @@ There have been several approaches proposed to handle arbitrary dwell time distr
 
 This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks. This approach has been explored in a previous work by @tallis1994.
 
-### Competing risks in terms of survival functions
+### Competing risks in terms of hazard functions
 
 Consider a scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
 
@@ -504,7 +504,7 @@ $$
 
 #### Okay? so what does all this mean?
 
-The takeaway point here is that the hazard function of leaving $X$ compartment can be rewritten in terms of the hazard function of each competing risk $X \rightarrow O_i$.
+The takeaway point here is that the hazard rate of leaving $X$ compartment can be rewritten in terms of the hazard rates of each competing risk $X \rightarrow O_i$.
 
 That is to say, we can simulate the dynamics of $X$ compartment numerically if we:
 
@@ -799,7 +799,7 @@ plot_sird(h_result, ylab="Count")
 
 We can cross check the result with the output using LCT @fig-lct-sird
 
-### **Related packages**
+### Related packages
 
 `denim` R package implements this approach to handle arbitrary dwell time distribution, and provide a generalized API for scalable models.
 
