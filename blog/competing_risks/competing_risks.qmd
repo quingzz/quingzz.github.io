@@ -406,7 +406,7 @@ odin_mod <- odin_mod$run(times) %>%
   mutate(
     I = I11 + I12 + I21 + I22 + I32 + I31
   )
-plot_sird(odin_mod)
+plot_sird(odin_mod, ylab="Count")
 ```
 
 ## Generalized transition time distribution
@@ -841,8 +841,10 @@ denim_out <- sim(sird_denim,
 #| code-summary: "Plot SIRD implemented in denim"
 denim_out %>%
   rename(t = Time) %>% 
-  plot_sird()
+  plot_sird(ylab="Count")
 ```
+
+Once again, we compare this with the output using LCT @fig-lct-sird
 
 ## Takeaway points
 
