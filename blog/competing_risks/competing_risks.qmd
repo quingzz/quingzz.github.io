@@ -799,14 +799,49 @@ plot_sird(h_result, ylab="Count")
 
 We can cross check the result with the output using LCT @fig-lct-sird
 
-#### **Related packages**
+### **Related packages**
 
 `denim` R package implements this approach to handle arbitrary dwell time distribution, and provide a generalized API for scalable models.
 
 Refers to the documentation [here](https://drthinhong.com/denim/).
 
 ```{r}
-# TODO: include model implemented in denim
+#| code-fold: true
+#| code-summary: "Configure and run model in denim"
+library(denim)
+# --- model definition in denim --- 
+sird_denim <- list(
+  "S -> I" = "beta * S * I/N * timeStep",
+  "I -> R" = d_gamma(rate = 0.2, shape = 3),
+  "I -> D" = d_gamma(rate = 0.1, shape = 2)
+)
+
+# --- set up parameters and initial values -----
+denim_pars <- list(
+  beta = 0.4,
+  N = 1000
+)
+denim_initial_vars <- list(
+  S = 999,
+  I = 1,
+  R = 0,
+  D = 0
+)
+
+# --- run model ------
+denim_out <- sim(sird_denim,
+    denim_initial_vars,
+    denim_pars,
+    simulationDuration = 50,
+    timeStep = 0.05)
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Plot SIRD implemented in denim"
+denim_out %>%
+  rename(t = Time) %>% 
+  plot_sird()
 ```
 
 ## Takeaway points
