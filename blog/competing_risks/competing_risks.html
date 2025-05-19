@@ -4085,10 +4085,10 @@ window.Quarto = {
   </ul></li>
   <li><a href="#generalized-transition-time-distribution" id="toc-generalized-transition-time-distribution" class="nav-link" data-scroll-target="#generalized-transition-time-distribution"><span class="header-section-number">3</span> Generalized transition time distribution</a>
   <ul class="collapse">
-  <li><a href="#competing-risks-in-terms-of-survival-functions" id="toc-competing-risks-in-terms-of-survival-functions" class="nav-link" data-scroll-target="#competing-risks-in-terms-of-survival-functions"><span class="header-section-number">3.1</span> Competing risks in terms of survival functions</a></li>
+  <li><a href="#competing-risks-in-terms-of-hazard-functions" id="toc-competing-risks-in-terms-of-hazard-functions" class="nav-link" data-scroll-target="#competing-risks-in-terms-of-hazard-functions"><span class="header-section-number">3.1</span> Competing risks in terms of hazard functions</a></li>
   <li><a href="#recover-previous-formulations-under-the-new-problem-framing" id="toc-recover-previous-formulations-under-the-new-problem-framing" class="nav-link" data-scroll-target="#recover-previous-formulations-under-the-new-problem-framing"><span class="header-section-number">3.2</span> Recover previous formulations under the new problem framing</a></li>
   <li><a href="#implementation-2" id="toc-implementation-2" class="nav-link" data-scroll-target="#implementation-2"><span class="header-section-number">3.3</span> Implementation</a></li>
-  <li><a href="#related-packages" id="toc-related-packages" class="nav-link" data-scroll-target="#related-packages"><span class="header-section-number">3.4</span> <strong>Related packages</strong></a></li>
+  <li><a href="#related-packages" id="toc-related-packages" class="nav-link" data-scroll-target="#related-packages"><span class="header-section-number">3.4</span> Related packages</a></li>
   </ul></li>
   <li><a href="#takeaway-points" id="toc-takeaway-points" class="nav-link" data-scroll-target="#takeaway-points"><span class="header-section-number">4</span> Takeaway points</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -4480,8 +4480,8 @@ Figure 2: SIRD with LCT
 <h2 data-number="3" class="anchored" data-anchor-id="generalized-transition-time-distribution"><span class="header-section-number">3</span> Generalized transition time distribution</h2>
 <p>There have been several approaches proposed to handle arbitrary dwell time distributions in compartmental model, using delay-integro differential equations <span class="citation" data-cites="hernández2021">(<a href="#ref-hernández2021" role="doc-biblioref">Hernández et al. 2021</a>)</span> or delay differential equation (DDE) <span class="citation" data-cites="hong2024">(<a href="#ref-hong2024" role="doc-biblioref">Hong et al. 2024</a>)</span>.</p>
 <p>This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks. This approach has been explored in a previous work by <span class="citation" data-cites="tallis1994">Tallis (<a href="#ref-tallis1994" role="doc-biblioref">1994</a>)</span>.</p>
-<section id="competing-risks-in-terms-of-survival-functions" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="competing-risks-in-terms-of-survival-functions"><span class="header-section-number">3.1</span> Competing risks in terms of survival functions</h3>
+<section id="competing-risks-in-terms-of-hazard-functions" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="competing-risks-in-terms-of-hazard-functions"><span class="header-section-number">3.1</span> Competing risks in terms of hazard functions</h3>
 <p>Consider a scenario where compartment <span class="math inline">\(X\)</span> can transition to <span class="math inline">\(n\)</span> out compartments denoted <span class="math inline">\(O_i\)</span> where <span class="math inline">\(i \in \{1,2,...,n\}\)</span>. We model these out transition as <span class="math inline">\(n\)</span> competing risks (assumed to be independent) with arbitrary parametric distribution.</p>
 <p>Some annotations and indications within the context of compartmental model:</p>
 <ul>
@@ -4566,7 +4566,7 @@ h_X(t) =
 </div>
 <section id="okay-so-what-does-all-this-mean" class="level4" data-number="3.1.1">
 <h4 data-number="3.1.1" class="anchored" data-anchor-id="okay-so-what-does-all-this-mean"><span class="header-section-number">3.1.1</span> Okay? so what does all this mean?</h4>
-<p>The takeaway point here is that the hazard function of leaving <span class="math inline">\(X\)</span> compartment can be rewritten in terms of the hazard function of each competing risk <span class="math inline">\(X \rightarrow O_i\)</span>.</p>
+<p>The takeaway point here is that the hazard rate of leaving <span class="math inline">\(X\)</span> compartment can be rewritten in terms of the hazard rates of each competing risk <span class="math inline">\(X \rightarrow O_i\)</span>.</p>
 <p>That is to say, we can simulate the dynamics of <span class="math inline">\(X\)</span> compartment numerically if we:</p>
 <ul>
 <li><p>Know the PDF (or CDF) of each competing <span class="math inline">\(X \rightarrow O_i\)</span> transition.</p></li>
@@ -4858,7 +4858,7 @@ Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is 
 </section>
 </section>
 <section id="related-packages" class="level3" data-number="3.4">
-<h3 data-number="3.4" class="anchored" data-anchor-id="related-packages"><span class="header-section-number">3.4</span> <strong>Related packages</strong></h3>
+<h3 data-number="3.4" class="anchored" data-anchor-id="related-packages"><span class="header-section-number">3.4</span> Related packages</h3>
 <p><code>denim</code> R package implements this approach to handle arbitrary dwell time distribution, and provide a generalized API for scalable models.</p>
 <p>Refers to the documentation <a href="https://drthinhong.com/denim/">here</a>.</p>
 <div class="cell">

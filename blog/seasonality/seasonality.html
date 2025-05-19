@@ -4082,7 +4082,6 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#bifurcation-diagram-1" id="toc-bifurcation-diagram-1" class="nav-link" data-scroll-target="#bifurcation-diagram-1"><span class="header-section-number">3.1</span> Bifurcation diagram</a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -4135,7 +4134,7 @@ Disclaimer
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The content of this blog is mostly based on <em>Chapter 5 - Temporally Forced Model</em> of the book “Modeling Infectious Diseases in Human and Animals” by <span class="citation" data-cites="keeling2008">(<a href="#ref-keeling2008" role="doc-biblioref"><strong>keeling2008?</strong></a>)</span>.</p>
+<p>The content of this blog is mostly based on <em>Chapter 5 - Temporally Forced Model</em> of the book “Modeling Infectious Diseases in Human and Animals” by <span class="citation" data-cites="keeling2008">Keeling and Rohani (<a href="#ref-keeling2008" role="doc-biblioref">2008</a>)</span>.</p>
 <p>The intended purpose of this blog is to summarize the content and provide reproducible code/model implementations in R. For a more detailed explanation on the topic, please refer to the source material.</p>
 </div>
 </div>
@@ -4564,6 +4563,7 @@ I(\beta(t) \frac{1}{N} S - b - \gamma) &gt; 0
 </section>
 <section id="bifurcation-diagram" class="level3" data-number="2.3">
 <h3 data-number="2.3" class="anchored" data-anchor-id="bifurcation-diagram"><span class="header-section-number">2.3</span> Bifurcation diagram</h3>
+<p>//TBD:</p>
 </section>
 </section>
 <section id="other-functional-forms-for-betat" class="level2" data-number="3">
@@ -4583,6 +4583,46 @@ I(\beta(t) \frac{1}{N} S - b - \gamma) &gt; 0
 <li><p><span class="math inline">\(D_-\)</span> is the number of holidays (in a year)</p></li>
 </ul></li>
 </ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A closer look at the factor for $\beta_0$
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For the un-adjusted model, the formulation for <span class="math inline">\(\beta(t)\)</span> is as followed</p>
+<p><span class="math display">\[
+\beta(t) = \beta_0 (1+\beta_1 \text{Term}(t))
+\]</span></p>
+<p>The problem of this formulation arises when there is a large discrepancy between number of days where <span class="math inline">\(\text{Term}(t) = 1\)</span> and <span class="math inline">\(\text{Term}(t) = -1\)</span>, in which case the mean of <span class="math inline">\(\beta(t)\)</span> will deviate from <span class="math inline">\(\beta_0\)</span>.</p>
+<p>The mean for <span class="math inline">\(\beta(t)\)</span> assuming a period of 1 year can be estimated by</p>
+<p><span class="math display">\[
+\frac{1}{365} \sum_1^{365} \beta_0 (1 + \beta_1 * \text{Term}(t))
+\]</span> <span class="math display">\[
+\frac{1}{365} \beta_0 \sum_{t=1}^{365} 1 + \beta_1 * \text{Term}(t)
+\]</span></p>
+<p>Denote <span class="math inline">\(D_+\)</span> as the number of days where <span class="math inline">\(\text{Term}(t) = 1\)</span> and <span class="math inline">\(D_-\)</span> as the number of days where <span class="math inline">\(\text{Term}(t) = -1\)</span>, also recall that <span class="math inline">\(\sum_{t = 1}^{365} 1 = 365\)</span>. We can rewrite the formula into</p>
+<p><span class="math display">\[
+\frac{1}{365} \beta_0 (365 + \beta_1 D_+ - \beta_1 D_-)
+\]</span></p>
+<p>For example, if a year have 250 days where <span class="math inline">\(\text{Term}(t) = 1\)</span>, with the settings <span class="math inline">\(\beta_0 = 0.1\)</span> and <span class="math inline">\(\beta_1 = 2\)</span>, mean of <span class="math inline">\(\beta(t)\)</span> over the year can be computed by.</p>
+<p><span class="math display">\[
+\frac{1}{365} \beta_0 (365 + 250\beta_1 - 115\beta_1) \approx 0.17
+\]</span></p>
+<p>We can also rewrite that <span class="math inline">\(365 = D_+ + D_-\)</span></p>
+<p><span class="math display">\[
+\frac{1}{365} \beta_0 (D_+ + D_- + \beta_1 D_+ - \beta_1 D_-) = \\
+\frac{1}{365} \beta_0 ((1 + \beta_1)D_+  + (1- \beta_1) D_-)
+\]</span></p>
+<p>Thus, for the mean of <span class="math inline">\(\beta(t)\)</span> to be equal to <span class="math inline">\(\beta_0\)</span> we need to multiply a factor <span class="math inline">\(\frac{1}{\frac{1}{365} ((1 + \beta_1)D_+ + (1 - \beta_1)D_-)}\)</span></p>
+</div>
+</div>
+</div>
 <p>The implementation for SIR model with term-based forcing (using R package <code>odin</code>) is provided below.</p>
 <div class="cell">
 <details class="code-fold">
@@ -4792,13 +4832,11 @@ Figure 5: Changes in I when beta_0 is adjusted
 </div>
 <section id="bifurcation-diagram-1" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="bifurcation-diagram-1"><span class="header-section-number">3.1</span> Bifurcation diagram</h3>
+<p>//TBD: ## References {.unnumbered}</p>
+
+
+
 </section>
-</section>
-<section id="references" class="level2 unnumbered">
-
-
-
-
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -4807,6 +4845,9 @@ Anderson, Roy M., and Robert M. May. 1991. <em>Infectious Diseases of Humans: Dy
 </div>
 <div id="ref-19762902036" class="csl-entry" role="listitem">
 Bailey, N. T. J. 1975. <em>The Mathematical Theory of Infectious Diseases and Its Applications. 2nd Edition.</em> Charles Griffin &amp; Company Ltd, 5a Crendon Street, High Wycombe, Bucks HP13 6LE.
+</div>
+<div id="ref-keeling2008" class="csl-entry" role="listitem">
+Keeling, Matt J., and Pejman Rohani. 2008. <em>Modeling Infectious Diseases in Humans and Animals</em>. Princeton University Press. <a href="https://doi.org/10.2307/j.ctvcm4gk0">https://doi.org/10.2307/j.ctvcm4gk0</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
