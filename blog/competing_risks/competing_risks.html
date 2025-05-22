@@ -4490,12 +4490,43 @@ Figure 2: SIRD with LCT
 <li><p><span class="math inline">\(h(t)\)</span> is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time <span class="math inline">\(t\)</span>. (i.e., <span class="math inline">\(h(t) = \frac{f(t)}{S(t)}\)</span>)</p></li>
 <li><p>The subscript of function annotation denotes which event this function is for. For example, <span class="math inline">\(f_{X \rightarrow O_1}(t)\)</span> refers to the PDF for the <span class="math inline">\(X \rightarrow O_1\)</span> transition.</p></li>
 </ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Example: SIR model in terms of hazard function
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>An SIR model with arbitrary distributed infectious period could be rewritten in terms of hazard function as followed</p>
+<p><span class="math display">\[
+\begin{cases}
+dS(t) = -\beta\frac{I(t)}{N}S(t) \\
+dI(t) = \beta\frac{I(t)}{N}S(t) - \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t, \tau) d\tau \\
+dR(t) = \int_1^\tau h_{I\rightarrow R}(\tau) I(t) d\tau
+\end{cases}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\mathcal{T}\)</span> denotes the maximal dwell time in <span class="math inline">\(I\)</span></li>
+</ul>
+<!-- -->
+<ul>
+<li><span class="math inline">\(I(t, \tau)\)</span> denotes the sub-population of <span class="math inline">\(I\)</span> at time <span class="math inline">\(t\)</span> that have stayed for <span class="math inline">\(\tau\)</span> time period.</li>
+</ul>
+</div>
+</div>
+</div>
 <p>The survival function for leaving <span class="math inline">\(X\)</span> (denoted <span class="math inline">\(S_X (t)\)</span>) is the product of survival functions for all <span class="math inline">\(X \rightarrow O_i\)</span>.</p>
 <p><span class="math display">\[
 S_X(t) = \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)
 \]</span></p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -4504,7 +4535,7 @@ Formulation for <span class="math inline">\(S_X(t)\)</span>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Recall that <span class="math inline">\(S_X(1)\)</span> is equivalent to <span class="math inline">\(P(T_X &gt; t)\)</span> (i.e. probability that individual have not left <span class="math inline">\(X\)</span> compartment at time <span class="math inline">\(t\)</span>).</p>
 <p><span class="math display">\[
@@ -4529,7 +4560,7 @@ h_X(t) = \frac{f_X(t)}{S_X(t)} = \frac{-\frac{d}{dt} S_X(t)}{S_X(t)} = \frac{-\f
 h_X(t) = \sum_{i = 1}^n\frac{ f_{X \rightarrow O_i}(t)}{S_{X \rightarrow O_i}(t)} = \sum_{i = 1}^n h_{X \rightarrow O_i}(t)
 \]</span></p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -4538,7 +4569,7 @@ Simplifying <span class="math inline">\(h_X(t)\)</span>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p><span class="math display">\[
 h_X(t) = \frac{-\frac{d}{dt} \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}{\prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)}
@@ -4575,13 +4606,17 @@ h_X(t) =
 <p>Where the system of derivatives to describe the dynamics of <span class="math inline">\(X\)</span> and <span class="math inline">\(O_i\)</span> is as followed</p>
 <p><span id="eq-comp-hazard"><span class="math display">\[
 \begin{cases}
-\frac{dX(t)}{dt} = - \int_{0}^{\tau} h_X(\tau)*X(t, \tau) d\tau = - \int_{0}^{\tau} \sum_{i=1}^{n} h_{X \rightarrow O_i}(\tau)*X(t, \tau) d\tau \\
-\frac{dO_1(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
+\frac{dX(t)}{dt} = - \int_{0}^{\mathcal{T}} h_X(\tau)*X(t, \tau) d\tau = - \int_{0}^{\mathcal{T}} \sum_{i=1}^{n} h_{X \rightarrow O_i}(\tau)*X(t, \tau) d\tau \\
+\frac{dO_1(t)}{dt} = \int_{0}^{\mathcal{T}} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
 \vdots \\
-\frac{dO_n(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
+\frac{dO_n(t)}{dt} = \int_{0}^{\mathcal{T}} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
 \end{cases}
 \tag{1}\]</span></span></p>
 <p>Where:</p>
+<ul>
+<li><span class="math inline">\(\mathcal{T}\)</span> denotes the maximal dwell time in <span class="math inline">\(X\)</span></li>
+</ul>
+<!-- -->
 <ul>
 <li><p><span class="math inline">\(\tau\)</span> denotes the time-since-entering the <span class="math inline">\(X\)</span> compartment.</p></li>
 <li><p><span class="math inline">\(X(t, \tau)\)</span> denotes the sub-population of <span class="math inline">\(X\)</span> at time <span class="math inline">\(t\)</span> that have stayed for <span class="math inline">\(\tau\)</span> time period.</p></li>
@@ -4591,7 +4626,7 @@ h_X(t) =
 <section id="recover-previous-formulations-under-the-new-problem-framing" class="level3" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="recover-previous-formulations-under-the-new-problem-framing"><span class="header-section-number">3.2</span> Recover previous formulations under the new problem framing</h3>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -4600,7 +4635,7 @@ Classic SIRD
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Under the assumption that <span class="math inline">\(T_{I \rightarrow R} \sim \text{Exponential}(\gamma)\)</span> and <span class="math inline">\(T_{I \rightarrow D} \sim \text{Exponential}(\mu)\)</span></p>
 <p>The hazard function for leaving the <span class="math inline">\(I\)</span> compartment is</p>
@@ -4611,7 +4646,7 @@ h_{I \rightarrow R,D}(t) = \frac{ f_{I \rightarrow R}(t)}{S_{I \rightarrow R}(t)
 \]</span></p>
 <p>We put emphasis on the derivative for <span class="math inline">\(I\)</span> for now</p>
 <p><span class="math display">\[
-\frac{dI(t)}{dt} = - \int_0^\tau (\gamma + \mu) I(t,\tau)d \tau = - (\gamma + \mu) \int_0^\tau I(t,\tau)d \tau
+\frac{dI(t)}{dt} = - \int_0^\mathcal{T} (\gamma + \mu) I(t,\tau)d \tau = - (\gamma + \mu) \int_0^\mathcal{T} I(t,\tau)d \tau
 \]</span><br>
 Recall that <span class="math inline">\(\int_0^\tau I(t,\tau)d \tau\)</span> is basically “summing up” all the sub-populations of <span class="math inline">\(I\)</span> at time <span class="math inline">\(t\)</span>, thus the result of the integral is simply <span class="math inline">\(I(t)\)</span>. Thus:</p>
 <p><span class="math display">\[
