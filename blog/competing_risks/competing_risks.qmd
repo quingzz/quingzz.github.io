@@ -429,6 +429,29 @@ Some annotations and indications within the context of compartmental model:
 
 -   The subscript of function annotation denotes which event this function is for. For example, $f_{X \rightarrow O_1}(t)$ refers to the PDF for the $X \rightarrow O_1$ transition.
 
+::: {.callout-tip collapse="true"}
+#### Example: SIR model in terms of hazard function
+
+An SIR model with arbitrary distributed infectious period could be rewritten in terms of hazard function as followed
+
+$$
+\begin{cases}
+dS(t) = -\beta\frac{I(t)}{N}S(t) \\
+dI(t) = \beta\frac{I(t)}{N}S(t) - \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t, \tau) d\tau \\
+dR(t) = \int_1^\tau h_{I\rightarrow R}(\tau) I(t) d\tau
+\end{cases}
+$$
+
+Where:
+
+-   $\mathcal{T}$ denotes the maximal dwell time in $I$
+
+```{=html}
+<!-- -->
+```
+-   $I(t, \tau)$ denotes the sub-population of $I$ at time $t$ that have stayed for $\tau$ time period.
+:::
+
 The survival function for leaving $X$ (denoted $S_X (t)$) is the product of survival functions for all $X \rightarrow O_i$.
 
 $$
@@ -516,15 +539,20 @@ Where the system of derivatives to describe the dynamics of $X$ and $O_i$ is as 
 
 $$
 \begin{cases}
-\frac{dX(t)}{dt} = - \int_{0}^{\tau} h_X(\tau)*X(t, \tau) d\tau = - \int_{0}^{\tau} \sum_{i=1}^{n} h_{X \rightarrow O_i}(\tau)*X(t, \tau) d\tau \\
-\frac{dO_1(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
+\frac{dX(t)}{dt} = - \int_{0}^{\mathcal{T}} h_X(\tau)*X(t, \tau) d\tau = - \int_{0}^{\mathcal{T}} \sum_{i=1}^{n} h_{X \rightarrow O_i}(\tau)*X(t, \tau) d\tau \\
+\frac{dO_1(t)}{dt} = \int_{0}^{\mathcal{T}} h_{X\rightarrow O_1}(\tau)*X(t,\tau)d\tau \\
 \vdots \\
-\frac{dO_n(t)}{dt} = \int_{0}^{\tau} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
+\frac{dO_n(t)}{dt} = \int_{0}^{\mathcal{T}} h_{X\rightarrow O_n}(\tau)*X(t,\tau)d\tau \\
 \end{cases}
 $$ {#eq-comp-hazard}
 
 Where:
 
+-   $\mathcal{T}$ denotes the maximal dwell time in $X$
+
+```{=html}
+<!-- -->
+```
 -   $\tau$ denotes the time-since-entering the $X$ compartment.
 
 -   $X(t, \tau)$ denotes the sub-population of $X$ at time $t$ that have stayed for $\tau$ time period.
@@ -547,7 +575,7 @@ $$
 We put emphasis on the derivative for $I$ for now
 
 $$
-\frac{dI(t)}{dt} = - \int_0^\tau (\gamma + \mu) I(t,\tau)d \tau = - (\gamma + \mu) \int_0^\tau I(t,\tau)d \tau 
+\frac{dI(t)}{dt} = - \int_0^\mathcal{T} (\gamma + \mu) I(t,\tau)d \tau = - (\gamma + \mu) \int_0^\mathcal{T} I(t,\tau)d \tau 
 $$\
 Recall that $\int_0^\tau I(t,\tau)d \tau$ is basically "summing up" all the sub-populations of $I$ at time $t$, thus the result of the integral is simply $I(t)$. Thus:
 
