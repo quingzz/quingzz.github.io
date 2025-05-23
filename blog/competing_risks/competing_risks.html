@@ -4482,13 +4482,12 @@ Figure 2: SIRD with LCT
 <p>This blog, however, aim to re-frame the problem under the context of survival analysis to handle compartmental model with independent, arbitrarily distributed competing risks. This approach has been explored in a previous work by <span class="citation" data-cites="tallis1994">Tallis (<a href="#ref-tallis1994" role="doc-biblioref">1994</a>)</span>.</p>
 <section id="competing-risks-in-terms-of-hazard-functions" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="competing-risks-in-terms-of-hazard-functions"><span class="header-section-number">3.1</span> Competing risks in terms of hazard functions</h3>
-<p>Consider a scenario where compartment <span class="math inline">\(X\)</span> can transition to <span class="math inline">\(n\)</span> out compartments denoted <span class="math inline">\(O_i\)</span> where <span class="math inline">\(i \in \{1,2,...,n\}\)</span>. We model these out transition as <span class="math inline">\(n\)</span> competing risks (assumed to be independent) with arbitrary parametric distribution.</p>
 <p>Some annotations and indications within the context of compartmental model:</p>
 <ul>
 <li><p><span class="math inline">\(f(t)\)</span> is the probability distribution function (PDF) - indicate the instantaneous probability that an individual leave the compartment at time <span class="math inline">\(t\)</span>.</p></li>
 <li><p><span class="math inline">\(S(t)\)</span> is the survival function - indicate the probability that an individual still stay in the compartment at time <span class="math inline">\(t\)</span>. It is worth pointing out that <span class="math inline">\(f(t) = -\frac{d}{dt}S(t)\)</span>.</p></li>
 <li><p><span class="math inline">\(h(t)\)</span> is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time <span class="math inline">\(t\)</span>. (i.e., <span class="math inline">\(h(t) = \frac{f(t)}{S(t)}\)</span>)</p></li>
-<li><p>The subscript of function annotation denotes which event this function is for. For example, <span class="math inline">\(f_{X \rightarrow O_1}(t)\)</span> refers to the PDF for the <span class="math inline">\(X \rightarrow O_1\)</span> transition.</p></li>
+<li><p>The subscript of function annotation denotes which event this function is for. For example, <span class="math inline">\(f_{I \rightarrow R}(t)\)</span> refers to the PDF for the <span class="math inline">\(I \rightarrow R\)</span> transition.</p></li>
 </ul>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
@@ -4507,7 +4506,7 @@ Example: SIR model in terms of hazard function
 \begin{cases}
 dS(t) = -\beta\frac{I(t)}{N}S(t) \\
 dI(t) = \beta\frac{I(t)}{N}S(t) - \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t, \tau) d\tau \\
-dR(t) = \int_1^\tau h_{I\rightarrow R}(\tau) I(t) d\tau
+dR(t) = \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t) d\tau
 \end{cases}
 \]</span></p>
 <p>Where:</p>
@@ -4521,6 +4520,7 @@ dR(t) = \int_1^\tau h_{I\rightarrow R}(\tau) I(t) d\tau
 </div>
 </div>
 </div>
+<p>Consider a scenario where compartment <span class="math inline">\(X\)</span> can transition to <span class="math inline">\(n\)</span> out compartments denoted <span class="math inline">\(O_i\)</span> where <span class="math inline">\(i \in \{1,2,...,n\}\)</span>. We model these out transition as <span class="math inline">\(n\)</span> competing risks (assumed to be independent) with arbitrary parametric distribution.</p>
 <p>The survival function for leaving <span class="math inline">\(X\)</span> (denoted <span class="math inline">\(S_X (t)\)</span>) is the product of survival functions for all <span class="math inline">\(X \rightarrow O_i\)</span>.</p>
 <p><span class="math display">\[
 S_X(t) = \prod_{i = 1}^{n} S_{X \rightarrow O_i}(t)
