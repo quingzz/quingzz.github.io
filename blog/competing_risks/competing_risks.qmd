@@ -417,8 +417,6 @@ This blog, however, aim to re-frame the problem under the context of survival an
 
 ### Competing risks in terms of hazard functions
 
-Consider a scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
-
 Some annotations and indications within the context of compartmental model:
 
 -   $f(t)$ is the probability distribution function (PDF) - indicate the instantaneous probability that an individual leave the compartment at time $t$.
@@ -427,7 +425,7 @@ Some annotations and indications within the context of compartmental model:
 
 -   $h(t)$ is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time $t$. (i.e., $h(t) = \frac{f(t)}{S(t)}$)
 
--   The subscript of function annotation denotes which event this function is for. For example, $f_{X \rightarrow O_1}(t)$ refers to the PDF for the $X \rightarrow O_1$ transition.
+-   The subscript of function annotation denotes which event this function is for. For example, $f_{I \rightarrow R}(t)$ refers to the PDF for the $I \rightarrow R$ transition.
 
 ::: {.callout-tip collapse="true"}
 #### Example: SIR model in terms of hazard function
@@ -438,7 +436,7 @@ $$
 \begin{cases}
 dS(t) = -\beta\frac{I(t)}{N}S(t) \\
 dI(t) = \beta\frac{I(t)}{N}S(t) - \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t, \tau) d\tau \\
-dR(t) = \int_1^\tau h_{I\rightarrow R}(\tau) I(t) d\tau
+dR(t) = \int_0^\mathcal{T} h_{I\rightarrow R}(\tau) I(t) d\tau
 \end{cases}
 $$
 
@@ -451,6 +449,8 @@ Where:
 ```
 -   $I(t, \tau)$ denotes the sub-population of $I$ at time $t$ that have stayed for $\tau$ time period.
 :::
+
+Consider a scenario where compartment $X$ can transition to $n$ out compartments denoted $O_i$ where $i \in \{1,2,...,n\}$. We model these out transition as $n$ competing risks (assumed to be independent) with arbitrary parametric distribution.
 
 The survival function for leaving $X$ (denoted $S_X (t)$) is the product of survival functions for all $X \rightarrow O_i$.
 
