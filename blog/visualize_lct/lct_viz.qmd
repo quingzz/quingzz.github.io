@@ -119,42 +119,9 @@ $$
   <i><b>But why the ODE for Erlang distributed infectious period look like that? </i></b> 
   </summary>
 ```
-For me, the quickest way to understand is to try differentiating the Erlang distribution function
+TBD://
 
-$$
-f(x) =  \frac{r^k x^{k-1} e^{-r x}}{(k-1)!}
-$$
-
-Using substitutions
-
-$$
-\begin{cases}
-u = r^k e^{-rx} \rightarrow u' = -r^{k+1} e^{-rx}\\ 
-v = \frac{x^{k-1}}{(k-1)!} \rightarrow v' = \frac{ x^{k-2} }{(k-2)!}
-\end{cases}
-$$
-
-We have
-
-$$
-f(x) = uv \rightarrow f'(x) = u'v + uv' 
-$$ $$
-f'(x) = (-r^{k+1} e^{-rx})(\frac{x^{k-1}}{(k-1)!}) +  (r^k e^{-rx})(\frac{ x^{k-2} }{(k-2)!}) \\
-$$ $$
-f'(x) = -r (r^{k} e^{-rx} \frac{x^{k-1}}{(k-1)!}) + r (r^{k-1} e^{-rx})(\frac{ x^{k-2} }{(k-2)!})
-$$
-
-Notice something familiar?
-
--   On the left side of $+$, we have $-r (r^{k} e^{-rx} \frac{x^{k-1}}{(k-1)!}) = -r *\text{Erlang}(k,r)$
-
--   On the right side of $+$, we have $r (r^{k-1} e^{-rx})(\frac{ x^{k-2} }{(k-2)!}) = r (\frac{ r^{k-1} e^{-rx} x^{k-2} }{(k-2)!}) = r* \text{Erlang}(k-1,r)$
-
-Hence we have $\frac{d}{dx} \text{Erlang}(r,k) = r * \text{Erlang}(r,k-1) - r*\text{Erlang}(r,k)$
-
-Which, in our formulation, is denoted as $dI_k = rI_{k - 1} - rI_k$
-
-Note that we need $I_{k-1}$ hence the need for $dI_{k-1}$, subsequently $dI_{k-2}$, $dI_{k-3}$ ... until we reach the base case $dI_1$. Which, as we previously discussed, is simply derivative of exponential distribution $dI_1 = -rI_1$.
+Explain in-terms of sum of $k$ independent exponential distributed random variable
 
 </details>
 

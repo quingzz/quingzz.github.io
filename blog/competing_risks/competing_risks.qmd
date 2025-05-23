@@ -419,7 +419,7 @@ This blog, however, aim to re-frame the problem under the context of survival an
 
 Some annotations and indications within the context of compartmental model:
 
--   $f(t)$ is the probability distribution function (PDF) - indicate the instantaneous probability that an individual leave the compartment at time $t$.
+-   $f(t)$ is the probability density function (PDF) - indicate the instantaneous probability that an individual leave the compartment at time $t$.
 
 -   $S(t)$ is the survival function - indicate the probability that an individual still stay in the compartment at time $t$. It is worth pointing out that $f(t) = -\frac{d}{dt}S(t)$.
 
