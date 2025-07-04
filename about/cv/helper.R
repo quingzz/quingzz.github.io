@@ -4,8 +4,6 @@ library(httr)
 library(jsonlite)
 
 #### Make latex tables ####
-gs4_auth("quynhanhpt551@gmail.com")
-
 make_italic <- function(text) {
   paste0("\\textit italicise{", text, " italicise}")
 }
