@@ -10,6 +10,9 @@ about:
     - icon: linkedin
       text: Linkedin
       href: https://linkedin.com/in/truong-quynh-anh-phan-219572212
+    - icon: file-person-fill
+      text: CV
+      href: about/cv.pdf
 ---
 
 Hello World!

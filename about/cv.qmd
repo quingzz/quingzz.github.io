@@ -1,0 +1,141 @@
+---
+format:
+  pdf:
+    documentclass: article
+    keep-tex: true
+    latex_engine: xelatex
+    toc: false
+    number-sections: false
+    papersize: a4
+    geometry:
+      - top=14mm
+      - left=15mm
+      - right=15mm
+      - bottom=20mm
+      - heightrounded
+    linestretch: 0.95
+    fontfamily: baskervald
+    fontsize: 12pt
+    include-in-header: cv-header.tex
+    include-before-body: cv-info.tex
+execute:
+  echo: false
+  warning: false
+  message: false
+draft: true
+---
+
+```{r}
+# https://github.com/jhelvy/cv
+# https://github.com/acbass49/CV_Quarto/
+library(tidyverse)
+library(glue)
+library(pander)
+source("./cv/helper.R")
+source("./cv/scrape_publications.R")
+
+cv_url <- "https://docs.google.com/spreadsheets/d/105Ru1UQVn4m2iGJ-DN1TJkbAkVHTke8GEo0uqcV2M0Q/edit?usp=sharing"
+gs4_deauth() # read anonymously
+```
+
+```{=tex}
+\begin{large}{\bf EDUCATION}
+  \vspace{3pt}
+  \hrule
+\end{large}
+```
+```{r}
+#| results: asis
+cv_edu_raw <- read_sheet(ss = cv_url, sheet = "experiences")
+cv_edu_raw  %>% 
+  filter(type == "degree") %>% 
+  mutate(timeframe = as.character(timeframe)) %>% 
+  select(timeframe, description, issuer, gpa) %>% 
+  make_table(
+    colwidths = c(12, 32, 15, 15),
+    header = make_italic(c("", "Degree", "Institution", "GPA")),
+    italic = T
+  )
+```
+
+```{=tex}
+\begin{large}{\bf EMPLOYMENT HISTORY}
+  \vspace{3pt}
+  \hrule
+\end{large}
+```
+```{r}
+#| results: asis
+cv_employ_raw <- read_sheet(ss = cv_url, sheet = "experiences")
+cv_employ_raw  %>% 
+  filter(type == "employment") %>%
+  mutate(timeframe = as.character(timeframe)) %>%
+  select(timeframe, description, issuer) %>% 
+  make_table(
+    colwidths = c(12, 45, 30),
+    header = make_italic(c("", "Position", "Employer")),
+    italic = T
+  )
+```
+
+```{=tex}
+\begin{large}{\bf PROJECTS}
+  \vspace{3pt}
+  \hrule
+\end{large}
+```
+```{r results='asis'}
+cv_prj_raw <- read_sheet(ss = cv_url, sheet = "projects")
+
+cv_prj_raw %>% 
+  select(name, description, type, role, url_github, url) %>% 
+  render_prj_list() 
+```
+
+```{=tex}
+\begin{large}{\bf TEACHING}
+  \vspace{3pt}
+  \hrule
+\end{large}
+```
+```{r}
+cv_teaching_raw <- read_sheet(ss = cv_url, sheet = "teachings")
+
+cv_teaching <- cv_teaching_raw 
+
+cv_teaching %>% 
+  mutate(
+    website = if_else(is.na(webpage), "", webpage),
+    details = paste0(make_italic(courses), " - ", description, 
+                     ".\\newline Course webpage: ", make_url(website))
+  ) %>% 
+  select(
+    details
+  ) %>% 
+  make_table(
+    colwidths = c(80,15),
+    italic = T, newline = T, url=T) 
+```
+
+```{=tex}
+\begin{large}{\bf SOFTWARE}
+  \vspace{3pt}
+  \hrule
+\end{large}
+```
+```{r}
+#| results: asis
+cv_software_raw <- read_sheet(ss = cv_url, sheet = "software")
+
+cv_software <- cv_software_raw %>% 
+  generate_pkg_info() %>% 
+  mutate(
+    software_text = 
+      paste0(authors, " (", year, "). *", 
+             summary, 
+             "*. doi: [", doi, "](", doi, ").",
+             "[Github](", github, ").")
+  )
+
+pandoc.list(cv_software$software_text, style = "ordered")
+```
