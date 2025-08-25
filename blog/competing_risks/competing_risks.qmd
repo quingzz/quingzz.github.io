@@ -423,7 +423,7 @@ Some annotations and indications within the context of compartmental model:
 
 -   $S(t)$ is the survival function - indicate the probability that an individual still stay in the compartment at time $t$. It is worth pointing out that $f(t) = -\frac{d}{dt}S(t)$.
 
--   $h(t)$ is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment till time $t$. (i.e., $h(t) = \frac{f(t)}{S(t)}$)
+-   $h(t)$ is the function for hazard rate - indicate the instantaneous rate of leaving a compartment, given that individuals have stayed in the compartment for $t$ period of time. (i.e., $h(t) = \frac{f(t)}{S(t)}$)
 
 -   The subscript of function annotation denotes which event this function is for. For example, $f_{I \rightarrow R}(t)$ refers to the PDF for the $I \rightarrow R$ transition.
 
@@ -443,10 +443,6 @@ $$
 Where:
 
 -   $\mathcal{T}$ denotes the maximal dwell time in $I$
-
-```{=html}
-<!-- -->
-```
 -   $I(t, \tau)$ denotes the sub-population of $I$ at time $t$ that have stayed for $\tau$ time period.
 :::
 
@@ -461,7 +457,7 @@ $$
 ::: {.callout-note collapse="true"}
 #### Formulation for $S_X(t)$
 
-Recall that $S_X(1)$ is equivalent to $P(T_X > t)$ (i.e. probability that individual have not left $X$ compartment at time $t$).
+Recall that $S_X(t)$ is equivalent to $P(T_X > t)$ (i.e. probability that individual have not left $X$ compartment at time $t$).
 
 $$
 P(T_X > t) = P(T_{X\rightarrow O_1} > t, T_{X\rightarrow O_2} > t, ..., T_{X\rightarrow O_n} > t)
@@ -549,12 +545,7 @@ $$ {#eq-comp-hazard}
 Where:
 
 -   $\mathcal{T}$ denotes the maximal dwell time in $X$
-
-```{=html}
-<!-- -->
-```
 -   $\tau$ denotes the time-since-entering the $X$ compartment.
-
 -   $X(t, \tau)$ denotes the sub-population of $X$ at time $t$ that have stayed for $\tau$ time period.
 
 ### Recover previous formulations under the new problem framing
@@ -587,7 +578,6 @@ Following similar steps, you can also recover formulas for $\frac{dR}{dt}$ and $
 
 Another way to look at this since the hazard function $h_{I \rightarrow R,D}(t)$ is simply a constant (in this scenario), we can conclude: the rate of leaving $I$ does not depend on how long an individual have stayed in $I$.
 :::
-
 
 ### Implementation
 
@@ -702,15 +692,21 @@ sird_mod <- odin2::odin(
     update(I[1]) <- dt * S * beta* sum(I)/N
     # transprob is basically h(tau)
     # starting from 2: to simulate individuals staying in I for another timestep
-    update(I[2:r_maxtime]) <- I[i-1]*(1-transprob[i-1])
+    # update(I[2:r_maxtime]) <- I[i-1]*(1-transprob[i-1])
+    # TODO: check conversion from rate to probability using exp(-rate) instead
+    update(I[2:r_maxtime]) <- I[i-1]*(exp(-transprob[i-1]))
     
     dim(I_to_R) <- r_maxtime
-    I_to_R[1:r_maxtime] <- r_hazard[i]*I[i]
+    # I_to_R[1:r_maxtime] <- r_hazard[i]*I[i]
+    # TODO: check conversion from rate to probability using 1 - exp(-rate) instead
+    I_to_R[1:r_maxtime] <- (1 - exp(-r_hazard[i]))*I[i]
     sum_I_to_R <- sum(I_to_R)
     update(R) <- R + sum_I_to_R
     
     dim(I_to_D) <- d_maxtime
-    I_to_D[1:d_maxtime] <- d_hazard[i]*I[i]
+    # I_to_D[1:d_maxtime] <- d_hazard[i]*I[i]
+    # TODO: check conversion from rate to probability using 1 - exp(-rate) instead
+    I_to_D[1:d_maxtime] <- (1 - exp(-d_hazard[i]))*I[i]
     sum_I_to_D <- sum(I_to_D)
     update(D) <- D + sum_I_to_D
     
@@ -808,7 +804,7 @@ odin_pars <- list(
 )
 
 # run model
-t_seq <- seq(0, simulation_duration, 0.25)
+t_seq <- seq(0, simulation_duration, 1)
 sird <- dust2::dust_system_create(sird_mod, odin_pars, dt = timestep)
 dust2::dust_system_set_state_initial(sird)
 out <- dust2::dust_system_simulate(sird, t_seq)

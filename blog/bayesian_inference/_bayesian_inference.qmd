@@ -1,0 +1,491 @@
+---
+title: Bayesian inference 
+description: "Overview of methods for Bayesian inference, and its application in deep probabilistic programming"
+author: Anh Phan
+date: "2025-05-19"
+image: "../default_blog_pic.png"
+format: 
+  html:
+    number-sections: true
+    embed-resources: true
+    self-contained: true
+bibliography: references.bib
+---
+
+## Background
+
+In statistics, there are 2 major paradigms: Bayesian and frequentist's statistics. The main difference between these 2 paradigms lies in the definition for probability.
+
+-   In frequentist statistics, probability is the frequency of events as number of sample goes toward infinity (i.e. it is an unknown [fixed value]{.underline} that we can *estimate* by collecting a lot of data).
+
+    -   A probability for an event in frequentist's definition can be represented as followed
+
+-   In Bayesian statistics, probability is a [degree of belief]{.underline} in the occurences of event, which [can be updated]{.underline} as we observed more data.
+
+    -   A probability for an event in Bayesian definition can be represented as followed
+
+        $$
+        P(\theta'|D) = \frac{P(D|\theta)  P(\theta)}{P(D)}
+        $$ {#eq-bayes-theorem}
+
+        Where:
+
+        -   $P(\theta)$ is the **prior**, since it represents our "prior belief" about the probability of event
+
+        -   $P(D|\theta)$ is the **likelihood**, representing how likely it is to obtain the observed data under the assumption of our prior belief.
+
+        -   $P(\theta'|D)$ is the **posterior**, since it represents our "updated belief" about the probability of event after observing some data $D$.
+
+This blog focuses on the process of parameter inference under Bayesian paradigm.
+
+### Bayesian inference {#bayesian-inference}
+
+Supposed we have a set of observed data $D$ and a parameter $\theta$ we need to infer. Under the Bayesian paradigm, we can compute the probability distribution of $\theta$ using the formula below
+
+$$
+P(\theta|D) = \frac{P(D|\theta)  P(\theta)}{P(D)}
+$$
+
+With a slightly different interpretation compared to @eq-bayes-theorem as followed
+
+-   $P(\theta)$ is our **prior** assumption about the probability distribution of $\theta$ before seeing the data.
+
+-   $P(D|\theta)$ is the **likelihood**, representing how likely it is to obtain the observed data under the assumed distribution for $\theta$.
+
+-   $P(\theta|D)$ is the **posterior**, representing our updated belief about $\theta$ after observing data $D$.
+
+The issue of this formulation lies in the need to compute $P(D)$. To do so, we need to marginalize out the parameter space from the joint density, formulated as below
+
+$$
+P(D) = \int^\Theta P(D, \theta)d\theta = \int^\Theta P(D|\theta) P(\theta) d\theta
+$$
+
+That is to say, we need integrate over all the possible values in the parameter space ( $\Theta$ ). In most realistic models, it is impossible to derive this integral in closed form (with a caveat, see @note-conjugate-prior) or requires exponential time to compute.
+
+To address this problem, there 2 main approaches proposed for Bayesian inference:
+
+-   Monte-Carlo Markov Chain (MCMC) - a sampling based method
+
+-   Variational Inference (VI) - an approximation based method
+
+::: {#note-conjugate-prior .callout-note collapse="true"}
+## Conjugate prior
+
+A common method to derive a closed form expression for a posterior is by using a **conjugate prior.**
+
+The idea is selecting a functional form for the likelihood $P(D|\theta)$ and the prior $P(\theta)$, such that the prior $P(\theta)$ and the resulting posterior $P(\theta|D)$ belong to the **same probability distribution family**.
+:::
+
+## MCMC
+
+### The general idea of MCMC
+
+A break down of the name Monte Carlo Markov Chain
+
+-   Monte Carlo refers to the process of [sampling]{.underline} to estimate some value
+
+-   Markov Chain refers to a chain of values where the [value at each step depends on that of the previous step]{.underline}
+
+Put into the context of parameter inference, MCMC refers to the process of deriving the distribution of parameters by sampling a chain of parameter values, where the next sampled value depend on the previous one.
+
+### The process of MCMC
+
+**Sampling process**
+
+The general flow of MCMC is as followed
+
+1.  Initialization: Propose the initial value for parameter $\theta_0$
+2.  From then on, repeat the following steps till convergence (or maximum iterations is reached):
+    -   Propose a new value for parameter $\theta_{t}$ depending on the previously proposed value $\theta_{t-1}$, formulated as $\theta_{t} \sim Q(\theta_{t-1})$
+    -   Decide whether to accept the new proposed value $\theta_t$, formulated as $A(\theta_t, \theta_{t-1})$.
+        -   If accept ( $A(.)= 1$ ), add $\theta_t$ to the chain
+        -   If reject ( $A(.)= 0$ ), propose another value for $\theta_t$
+
+To perform the sampling process, some questions we may encounter are:
+
+-   How should we determine the parameter space?
+
+-   What is the formulation for $Q(\theta_{t-1})$?
+
+-   What is the formulation for $A(\theta_t, \theta_{t-1})$?
+
+*How should we determine the parameter space?*
+
+The parameter space depends on the model or the problem context.
+
+The prior distribution $P(\theta)$ reflects our knowledge regarding how the values are distributed within that parameter space. If no assumption can be made, we can start from a non-informative distribution (i.e. a flat distribution such as $\text{Beta}(1,1)$ ).
+
+::: {.callout-note collapse="true"}
+#### The importance of prior distribution
+
+The choice of distribution for prior has been proven to have a big impact on the result as well as time till convergence.
+
+One of the biggest critiques for Bayesian statistics is the need for a strong assumption for prior.
+:::
+
+*What is the formulation for* $Q(\theta_{t-1})$*? What is the formulation for* $A(\theta_t, \theta_{t-1})$*?*
+
+The answer to these 2 questions both depend on the algorithm we decide to use. But the goal remains the same, and that is to select $\theta_t$ such that we can maximise $P(\theta_t|D)$.
+
+Since $P(D)$ is a constant, we can conclude that
+
+$$
+P(\theta_t | D) \propto P(D|\theta_t) P(\theta_t)
+$$
+
+Which means that we can maximise $P(D|\theta_t) P(\theta_t)$ instead.
+
+***Some popular algorithms include the following***
+
+-   Metropolis-Hastings
+
+-   Hamilton Monte Carlo
+
+-   No-U-Turn Sampler
+
+### Implementation for MCMC
+
+#### Example implementation in R
+
+For this blog, we follow the Metropolis-Hastings Random walk algorithm to demonstrate the process of MCMC.
+
+The implementation is separated into the following sections:
+
+1.  Data generation
+2.  Formulate likelihood and prior
+3.  Implement the MH Random Walk algorithm
+4.  Visualize the output
+
+***Step 1: Data generation***
+
+For this example, the data is sampled from a normal distribution $y \sim \text{Normal}(\mu = 2, \sigma = 1)$.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Generate data"
+
+set.seed(42) # set seed for reproducibility
+n <- 100 # number of samples
+
+mu_true <- 2.0
+sigma_true <- 1.0
+
+y <- rnorm(n, mu_true, sigma_true)
+```
+
+***Step 2: Formulate the likelihood and prior***
+
+In general, there are 2 main components for a Bayesian model:
+
+-   The model we think the data is generated from. From the model, we can derive the formulation for the **likelihood** (i.e., $P(D|\theta)$).
+
+-   The prior distribution of the parameters of interest (i.e., $P(\theta)$).
+
+In this example, we assume the data is generated from a Normal distribution, but we only know that the parameters lie in the range of `0-5`. This leads to:
+
+-   **Model**: $y \sim \mathcal{N}(\mu, \sigma^2)$. And the **likelihood** is given by the normal distribution density function.
+
+-   **Parameters of interest**
+
+    -   The mean $\mu$, with a non-informative prior distribution $\mu \sim \text{Uniform}(0,5)$
+
+    -   The standard deviations $\sigma$, with a non-informative prior distribution $\sigma \sim \text{Uniform}(0,5)$
+
+```{r}
+#| code-fold: true
+#| code-summary: "Functions to compute likelihood and prior"
+
+# Note that here we are computing the log likelihood
+# Generally speaking, it is often better to compute in log scale (to avoid small probabilities) and that is what we are doing here
+likelihood  <- function(y, mu_est, sigma_est) {
+  sum(dnorm(y, mean = mu_est, sd = sigma_est, log=TRUE), na.rm=TRUE)
+}
+
+# Note that here we are computing the log probability
+p_prior <- function(mu, sigma, min=0, max=5) {
+  dunif(mu, min=min, max=max, log=TRUE) + dunif(sigma, min=min, max=max, log=TRUE)
+}
+```
+
+***Step 3: Implement the Metropolis-Hastings Random Walk algorithm***
+
+Under Metropolis-Hastings Random Walk algorithm:
+
+-   $\theta_t$ is sampled from a Normal distribution i.e., $Q(\theta_{t-1}) = \mathcal{N} (\theta_t, \sigma_{propose}^2)$ where $\sigma_{propose}$ is a parameter for the sampling process.
+
+-   Whether $\theta_t$ is accepted is determined by a probability called "acceptance probability", formulated as $AP(\theta_t, \theta_{t-1}) = \frac{P(D|\theta_t)P(\theta_t)}{P(D|\theta_{t-1}) P(\theta_{t-1})}$, i.e., $A(\theta_t, \theta_{t-1}) \sim \text{Bernoulli}(AP(\theta_t, \theta_{t-1}))$
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for MH Random Walk algorithm"
+library(tidyverse)
+library(patchwork)
+
+# ------ Function to decide whether the proposal should be accepted --------- 
+accept_proposal <- function(
+    data,
+    curr_mu, proposed_mu,
+    curr_sigma, proposed_sigma,
+    likelihood, p_prior){
+  
+  # compute (log of) acceptance ratio
+  acceptance_ratio <- likelihood(data, proposed_mu, proposed_sigma) + p_prior(proposed_mu, proposed_sigma) - 
+    (likelihood(data, curr_mu, curr_sigma) + p_prior(curr_mu, curr_sigma))
+  
+  accept_threshold <- runif(1, min = 0, max = 1)
+  
+  exp(acceptance_ratio) > accept_threshold
+}
+
+# ------ Implement MH Random Walk algorithm --------- 
+random_walk_mh <- function(y, 
+                           iter=20000, burn_in = 1000, prop_sd = 0.6){
+  T_iter   <- iter
+  burn_in  <- burn_in
+  # standard deviations of the normal distribution to propose new data
+  prop_sd  <- prop_sd 
+  
+  mu_est <- numeric(T_iter)
+  sigma_est <- numeric(T_iter)
+  
+  # sample the first value for mu and sigma
+  mu_est[1] <- runif(1, min = 0, max = 5)
+  sigma_est[1] <- runif(1, min = 0, max = 5)
+  
+  
+  for (t in 2:T_iter) {
+    # sample new value for mu, sigma
+    curr_mu <- mu_est[t-1]
+    proposed_mu <- rnorm(1, mean = curr_mu, sd = prop_sd)
+    
+    curr_sigma <- sigma_est[t-1]
+    proposed_sigma <- rnorm(1, mean = curr_sigma, sd = prop_sd)
+    
+    if(accept_proposal(
+      y, curr_mu, proposed_mu,
+      curr_sigma, proposed_sigma,
+      likelihood, p_prior
+    )){
+      mu_est[t] <- proposed_mu
+      sigma_est[t] <- proposed_sigma
+    }else{
+      mu_est[t] <- curr_mu
+      sigma_est[t] <- curr_sigma
+    }
+  }
+  
+  data.frame(
+    mu_posterior = mu_est,
+    sigma_posterior = sigma_est
+  ) %>% mutate(
+    iter = 1:n(),
+    label = if_else(iter <= burn_in, "burn-in", "posterior")
+  )
+}
+
+mcmc_out <- suppressWarnings(random_walk_mh(y))
+```
+
+***Step 3: Visualize the output***
+
+For this example we will visualize 2 things:
+
+-   The traceplot (i.e., samples for each parameter during each iteration)
+
+-   The sampled posterior distribution for parameters
+
+```{r}
+#| code-fold: true
+#| code-summary: "Code for visualizing MCMC output"
+
+# -------- Traceplot ---------- 
+mu_traceplot <- ggplot(mcmc_out, aes(x = iter, y = mu_posterior, color = label)) +
+  geom_line() +
+  scale_color_manual(values = c("grey70", "steelblue"),
+                     labels = c("burn-in", "posterior")) +
+  labs(title = "Trace of mu (Metropolis–Hastings)",
+       x = "Iteration", y = expression(theta)) +
+  theme_minimal()
+
+sigma_traceplot <- ggplot(mcmc_out, aes(x = iter, y = sigma_posterior, color = label)) +
+  geom_line() +
+  scale_color_manual(values = c("grey70", "steelblue"),
+                     labels = c("burn-in", "posterior")) +
+  labs(title = "Trace of sigma (Metropolis–Hastings)",
+       x = "Iteration", y = expression(theta)) +
+  theme_minimal()
+
+mu_traceplot / sigma_traceplot
+
+# -------- Histogram ----------
+mu_samples <- mcmc_out %>% 
+  filter(label == "posterior") %>% 
+  ggplot() +
+  geom_histogram(aes(x = mu_posterior), bins=60,
+                 fill = "steelblue", alpha = 0.5, color = "white") +
+  geom_vline(xintercept = mu_true, linetype = "dashed") +
+  labs(title = "Samples vs True value",
+       x = "mu", y = "Density") +
+  theme_minimal()
+
+sigma_samples <- mcmc_out %>% 
+  filter(label == "posterior") %>% 
+  ggplot() +
+  geom_histogram(aes(x = sigma_posterior), bins=60,
+                 fill = "steelblue", alpha = 0.5, color = "white") +
+  geom_vline(xintercept = sigma_true, linetype = "dashed") +
+  labs(title = "Samples vs True value",
+       x = "sigma", y = "Density") +
+  theme_minimal()
+
+mu_samples / sigma_samples
+
+# ------ Compare estimated paramters from posterior with true parameters -------
+mcmc_mu <- mcmc_out %>% filter(label == "posterior") %>% pull(mu_posterior)
+mcmc_sigma <- mcmc_out %>% filter(label == "posterior") %>% pull(sigma_posterior)
+
+cat(sprintf("MH mu ≈ %.3f  |  Actual mu = %.3f\n", median(mcmc_mu), mu_true))
+cat(sprintf("MH sigma ≈ %.3f  |  Actual sigma   = %.3f\n", median(mcmc_sigma), sigma_true))
+```
+
+#### Related packages
+
+Several packages have been developed to facilitate the process of fitting a Bayesian model using MCMC. Some packages for MCMC in different programming languages is provided below.
+
+-   **R** - mcmc
+
+    -   Another way to do it is to define model in Stan then interface it to R using rstan
+
+-   **Python** - PyMC
+
+### Some extensions and applications of MCMC
+
+-   Estimate parameter for hierarchical model
+
+-   pMCMC is used for estimating parameter for stochastic model
+
+## Variational inference
+
+::: callout-warning
+#### Disclaimer
+
+The following section is closely based on a previous work by @blei2017.
+
+The intended purpose of this blog is to summarize the content and provide reproducible code/model implementations in R. For a more detailed explanation on the topic, please refer to the source material.
+:::
+
+### The general idea of VI
+
+The general idea is to propose a [family of variational distributions]{.underline} $Q$ (i.e., a parameterization of a distribution of latent variables) then find the member distribution of that family $q^*(\theta)$ that is "closest" to the posterior distribution. Thus, it is important to choose $Q$ flexible enough to capture a density close to $P(\theta| D)$ but simple enough for efficient optimization.
+
+*Wait, that's a lot of assumption isn't it?*
+
+One may notice one glaring issue with the proposed idea of Variational Inference: It only find a density $q^*(\theta)$ [close to the target]{.underline} $P(\theta|D)$, as opposed to MCMC which is guaranteed to produce (asymptotically) exact samples from the target density.
+
+*So, why use VI at all?*
+
+The goal of VI is to address one of the biggest problem of MCMC: **Scalability.** In problems where dataset is large or more complex model, sampling (MCMC) may takes much longer to converge.
+
+It is also worth pointing out that VI is known to generally underestimate the variance of the posterior density, which, depending on the problem at hand may or may not be acceptable.
+
+Another key point to VI is that it is reframing the problem as an optimization problem, which allow it to be adaptable for Machine Learning/ deep learning framework.
+
+### The process of Variational Inference
+
+To perform the optimization process, we need to know the following:
+
+-   How should we select the family of distribution $Q$?
+
+-   How should we assess a variational distribution $q(.)$?
+
+-   How should we update $q(.)$?
+
+*How should we assess a variational distribution* $q^*(.)$*?*
+
+As previously mentioned, the criteria to assess $q^*(\theta)$ is that it must be close to the target (posterior) distribution $P(\theta|D)$. This so-called "closeness" between 2 distributions is quantified by computing KL divergence, $q^*(\theta)$ can thus be formulated as followed.
+
+$$
+q^*(\theta) = \underset{q(\theta) \in Q }{\text{argmin}} \text{ KL}(q(\theta) || P(\theta|D))
+$$
+
+Where $\text{KL}(q(\theta)||P(\theta|D)) = \mathbb{E}[log q(\theta)] - \mathbb{E}[logP(\theta|D)]$, with all expectations computed with respect to $q(\theta)$. Expanding the conditional, we derive that $\text{KL}(q(\theta)||P(\theta|D)) = \mathbb{E}[log q(\theta)] - \mathbb{E}[logP(\theta,D)] + logP(D)$.
+
+At this point, you may notice an issue: this formulation also require knowing $P(D)$, which is also a problem we discussed previously in @bayesian-inference
+
+Instead, we can maximise another target function, referred to as the evidence lower bound (ELBO), formulated below.
+
+$$
+\text{ELBO}(q) = \mathbb{E}[\text{log}P(\theta, D)] - \mathbb{E}[\text{log}q(\theta)] 
+$$
+
+*How should we select the family of distribution* $Q$*? How should we update* $q(.)$?
+
+The variational family $Q$ generally depends on 2 factors
+
+-   Assumption about the latent variables
+
+-   The optimization method
+
+The optimization methods used for VI (i.e., the algorithm to update $q(.)$) can be categorized into the following main groups
+
+-   **Closed form update** - in which case conjugacy is required
+
+    -   Algorithm(s): Coordinate ascent variational inference (*CAVI*)
+
+-   **Gradient based update** - in which case $q(.)$ is usually required to be differentiable
+
+    -   Algorithm(s): Stochastic variational inference (SVI)
+
+*Okay? Can I get an example for the variational family* $Q$*?*
+
+**Mean-field variational family**
+
+This is one of the most commonly used variational families. It can be used for both *Closed form* and *Gradient based* optimization. The assumption here is that the distributions for the latent variables are independent.
+
+Given $n$ latent variables
+
+$$
+q(\theta)  = \prod_{i=1}^{n} q_i(\theta_i)
+$$
+
+Where typical form of $q_i(\theta_i)$ is often chosen from the exponential family of distributions, including: Gaussian, Gamma. Beta, Bernoulli, etc.
+
+### Implementation for Variational Inference
+
+#### Implementation in R
+
+#### Related packages
+
+-   **R** - vglmer
+
+### Applications of Variational Inference
+
+## Deep Probabilistic Programming
+
+Frequentist approach:
+
+-   Conformal prediction
+
+### So, why consider Bayesian statistics at all?
+
+Provide a framework to quantify uncertainty in deep learning
+
+### How Bayesian inference is adapted for deep learning
+
+Variational inference
+
+-   Stochastic gradient descent (SGD)
+
+-   Monte-Carlo drop out
+
+-   Laplace approximation
+
+-   Deep ensembles
+
+-   Variational Encoder as the variational family
+
+### Related packages
+
+-   **Python** - Pyro
+
+### Application of probabilistic deep learning
