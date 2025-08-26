@@ -46,7 +46,7 @@ $$
 \frac{dI}{dt} = \beta \frac{I}{N} S - \gamma I \\
 \frac{dR}{dt} = \gamma I
 \end{cases}
-$$
+$$ {#eq-sir-markovian}
 
 With the underlying assumption that the infectious period (time to move from I to R **or** dwell-time in I compartment) is exponentially distributed (with rate $\gamma$ and mean infectious time $\frac{1}{\gamma}$ ). This was proven to be inadequate to capture many disease dynamics, as such, several formulations were suggested to incorporate other types of distributions.
 
@@ -60,13 +60,14 @@ The generalized formulation for $I \rightarrow R$ transition where infectious pe
 
 $$
 \begin{cases}
-dI_1 = - rI_1 \\
-dI_2 = rI_1 - rI_2 \\
+\frac{dS}{dt} = - \beta \frac{I}{N} S \\
+\frac{dI_1}{dt} = \beta \frac{I}{N} S - rI_1 \\
+\frac{dI_2}{dt} = rI_1 - rI_2 \\
 \vdots \\
-dI_k = rI_{k - 1} - rI_k \\
-dR = rI_k
+\frac{dI_k}{dt} = rI_{k - 1} - rI_k \\
+\frac{dR}{dt} = rI_k
 \end{cases}
-$$
+$$ {#eq-lct-generalized}
 
 Where:
 
@@ -81,56 +82,25 @@ For Erlang distribution with `rate=1/4`, `shape = 3`, the formulation would be
 
 $$
 \begin{cases}
-dI_1 = -\frac{1}{4}I_1 \\
-dI_2 = \frac{1}{4}I_1 -\frac{1}{4}I_2 \\
-dI_3 = \frac{1}{4}I_2 -\frac{1}{4}I_3 \\
-dR = \frac{1}{4}I_3 
+\frac{dS}{dt} = - \beta \frac{I}{N} S \\
+\frac{dI_1}{dt} = \beta \frac{I}{N} S - rI_1 \\
+\frac{dI_2}{dt} = \frac{1}{4}I_1 -\frac{1}{4}I_2 \\
+\frac{dI_3}{dt} = \frac{1}{4}I_2 -\frac{1}{4}I_3 \\
+\frac{dI_4}{dt} = \frac{1}{4}I_3 
 \end{cases}
 $$
 :::
 
 **The intuition of what is going on**: The key idea is to [delay]{.underline} the transition from I to R by introducing sub-compartment(s) i.e, $I_1$, $I_2$, ..., $I_k$.
 
-### A closer look at the formulation
-
-```{=html}
-<details>
-  <summary> <i><b>Wait, then when <code>shape = 1</code>, isn't that the same ODE from when the infectious period is exponentially distributed? </i></b> </summary>
-```
-Yes! if you plug `k = 1` in the formula for Erlang distribution, you will get the formula for exponential distribution.
-
-Recall that
-
-$$
-\text{Erlang}(rate=r , shape=k) = \frac{r^k x^{k-1} e^{-r x}}{(k-1)!}
-$$
-
-When `k=1`
-
-$$
-\text{Erlang}(rate=r , shape=1) = \frac{r x^{0} e^{-r x}}{(0)!} = r e^{-r x}
-$$
-
-</details>
-
-```{=html}
-<details>
-  <summary> 
-  <i><b>But why the ODE for Erlang distributed infectious period look like that? </i></b> 
-  </summary>
-```
-TBD://
-
-Explain in-terms of sum of $k$ independent exponential distributed random variable
-
-</details>
-
-::: {.callout-note collapse="true"}
+::: callout-note
 ## The property behind LCT
 
 LCT works by exploiting a property of Poisson processes: the time to $k_{th}$ event under a homogeneous Poisson process at rate $r$ is Erlang distributed with shape $k$ and rate $r$ [@hurtado2019].
 
 Another way to think of it is each event is preceded by a length of time that is exponentially distributed with rate $r$, and thus the time to $k_{th}$ event is the sum of $k$ independent and identical exponential random variables. The distribution of this sum turns out to be the Erlang distribution, with rate $r$ and shape $k$.
+
+In the context of the example SIR model ( @eq-lct-generalized ), time to $k_{th}$ event is the time going from sub-compartment $I_1$ to $I_k$. The rate of transitioning from $I_n$ to $I_{n+1}$ is constant ($r$) which implies the time of transitioning is exponentially distributed.
 :::
 
 ### Implementing LCT
