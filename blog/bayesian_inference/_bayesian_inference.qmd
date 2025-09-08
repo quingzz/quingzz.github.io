@@ -145,7 +145,7 @@ Which means that we can maximise $P(D|\theta_t) P(\theta_t)$ instead.
 
 ### Implementation for MCMC
 
-#### Example implementation in R
+#### Manual implementation in R
 
 For this blog, we follow the Metropolis-Hastings Random walk algorithm to demonstrate the process of MCMC.
 
@@ -392,17 +392,26 @@ Another key point to VI is that it is reframing the problem as an optimization p
 
 ### The process of Variational Inference
 
+The general flow of Variational Inference is as followed:
+
+1.  Select a family of variational distribution $Q$
+2.  *Initialization*: propose a set of variational parameters for the variational distribution $q(.)$
+3.  From then on, repeat the following steps till convergence (or maximum iterations is reached):
+    -   Compute the **target function** (ELBO) given current $q(.)$
+
+    -   Update the parameters of $q(.)$ to optimize the target function
+
 To perform the optimization process, we need to know the following:
 
 -   How should we select the family of distribution $Q$?
 
--   How should we assess a variational distribution $q(.)$?
+-   What is the target function ELBO?
 
--   How should we update $q(.)$?
+-   How should we update the parameters of $q(.)$?
 
-*How should we assess a variational distribution* $q^*(.)$*?*
+*What is the target function ELBO ?*
 
-As previously mentioned, the criteria to assess $q^*(\theta)$ is that it must be close to the target (posterior) distribution $P(\theta|D)$. This so-called "closeness" between 2 distributions is quantified by computing KL divergence, $q^*(\theta)$ can thus be formulated as followed.
+As previously mentioned, our goal is to derive $q^*(\theta)$ that is close to the target (posterior) distribution $P(\theta|D)$. This so-called "closeness" between 2 distributions is quantified by computing KL divergence, $q^*(\theta)$ can thus be formulated as followed.
 
 $$
 q^*(\theta) = \underset{q(\theta) \in Q }{\text{argmin}} \text{ KL}(q(\theta) || P(\theta|D))
@@ -434,7 +443,7 @@ The optimization methods used for VI (i.e., the algorithm to update $q(.)$) can 
 
 -   **Gradient based update** - in which case $q(.)$ is usually required to be differentiable
 
-    -   Algorithm(s): Stochastic variational inference (SVI)
+    -   Algorithm(s): Stochastic variational inference *(SVI)*
 
 *Okay? Can I get an example for the variational family* $Q$*?*
 
@@ -450,15 +459,297 @@ $$
 
 Where typical form of $q_i(\theta_i)$ is often chosen from the exponential family of distributions, including: Gaussian, Gamma. Beta, Bernoulli, etc.
 
+It is worth mentioning that generally speaking, variational family is [**NOT**]{.underline} a model of the data (there is no $D$ in the formulation). It is the [process of minimizing ELBO]{.underline} that connects variational family to the data.
+
 ### Implementation for Variational Inference
 
 #### Implementation in R
+
+The implementation is separated into the following sections:
+
+1.  Data generation
+2.  Formulate the model
+3.  Formulate the variational family and ELBO
+4.  Implement the CAVI algorithm
+5.  Visualize the output
+
+***Step 1: Data generation***
+
+For this example, the data is generated from a mixture of $k$ Gaussian distributions
+
+-   We first generate the $k$ means for each mixture from a common normal distribution: $\mu_i \sim \mathcal{N}(0, \sigma_{prior}^2)$ where $i = 1, 2, …, k$
+
+-   Then sample $n$ data points as followed:
+
+    -   Assign each data point to a cluster $c_j \sim \text{Categorical}(1/k, ..., 1/k)$ where $j = 1, 2, …, n$
+
+    -   Sample value for the data point: $y_j \sim \mathcal{N}(\mu_i, 0)$ where $j = 1, 2, …, n$
+
+```{r}
+set.seed(55) # set seed for reproducibility
+n <- 1000 # number of samples
+k <- 5 # set k, aka number of clusters
+
+# sample the mean of a Gaussian mixtures
+sd_prior <- 4
+cluster_mus <- rnorm(k, mean=0, sd=sd_prior)
+
+# sample which cluster each data points belong to 
+data_cluster <- sample(x = 1:k, size = n, replace = TRUE)
+
+# finally, sample data points given the cluster assignment (data_cluster)
+y <- rnorm(n, mean = cluster_mus[data_cluster], sd = 1)
+```
+
+Visualize data points
+
+```{r}
+ggplot(
+  data.frame(
+    y = y,
+    data_cluster = as.factor(data_cluster)
+  )
+) +
+  geom_jitter(
+    aes(
+      x = data_cluster, y = y, color = data_cluster
+    )
+  )
+
+
+ggplot(
+  data.frame(
+    y = y,
+    data_cluster = as.factor(data_cluster)
+  )
+) +
+  geom_density(
+    aes(
+      x = y, color = data_cluster
+    )
+  )
+```
+
+***Step 2: Formulate the model***
+
+```{r}
+log_mu_prior <- function(mu, m_k, sd_k){
+  dnorm(mu, mean = m_k, sd = sd_k, log = TRUE)
+}
+
+log_c_prior <- function(y, k){
+  log(1/k)*length(y)
+}
+```
+
+***Step 3: Formulate the variational family and ELBO***
+
+In this example, we will use previously mentioned mean-field variational family, which takes the following form, under the assumption that there are $m$ latent variables.
+
+$$
+q(\theta)  = \prod_{i=1}^{m} q_i(\theta_i)
+$$
+
+The parameters that the data depend on are
+
+-   The mean of each factor of the mixture $\mu_i$ where $i = 1, 2, …,k$
+
+-   The assignment of each data to a cluster $c_j$ where $j = 1,2,…, n$
+
+Thus, would need the following 2 types of the variational distribution:
+
+-   $q_i(\mu_i)$ which we formulate as a Gaussian distribution
+
+-   $q_j(c_j)$ which we formulate as a vector of $k$ probabilities
+
+The full variational distribution is then formulated as followed
+
+$$
+q() = \prod_{i = 1}^k q(\mu_i) \prod_{j = 1}^n q(c_j)
+$$
+
+::: {.callout-note collapse="true"}
+## Parameters and variational parameters
+
+It is crucial to keep in mind the different types of parameters we are referring to, in the context of variational inference
+
+-   **Parameters** refer to paramers of the **model** assumed to generate the data
+
+    -   In this example, it's $\mu_{1:k}$ and $c_{1:c}$.
+
+-   **Variational paramters** refer to the parameters of the **varational distribution**
+
+    -   In this example, it's the parameter of each variational factor $q(\mu_i)$ and $q(c_j)$
+:::
+
+$$
+\text{ELBO}(q) = \mathbb{E}[\text{log}P(\theta, D)] - \mathbb{E}[\text{log}q(\theta)] 
+$$
+
+```{r}
+# compute expected log probability of the estimated mean of cluster i
+expected_log_likelihood <- function(y, q_cluster, m_k, sd_k){
+  
+  # per data point likelihood
+  likelihood <- sapply(1:nrow(q_cluster), \(curr_row){
+    
+    # per cluster likelihood term
+    sapply(1:ncol(q_cluster), \(curr_col){
+      q_cluster[curr_row, curr_col]*(
+        2*y[curr_row]*m_k[curr_col] - (m_k[curr_col]**2 + sd_k[curr_col]**2)/2
+      )
+    })
+
+  })
+  
+  sum(likelihood)
+}
+
+expected_q_mu <- function(m_k, sd_k){
+  sum(dnorm(m_k, m_k, sd_k, log=TRUE))
+}
+
+expected_q_ci <- function(q_cluster){
+  sum(q_cluster*log(q_cluster))
+}
+
+
+compute_elbo <- function(y, q_cluster, m_k, sd_k, sigma_prior=1){
+  # Expected log p(mu), i.e. expected prior for mu term
+  sum(-(sd_k^2 + m_k^2)/(2*sigma_prior^2)) +
+  # compute the expected log p(c_i), i.e. expected prior for c term
+  sum(log(1/k)*length(y)) +
+  # likelihood
+  expected_log_likelihood(y, q_cluster, m_k, sd_k) -
+  # compute log q(m_k, sd_k), i.e. entropy term 
+  expected_q_mu(m_k, sd_k)  - 
+  # compute log q(q_cluster), i.e. entropy term
+  expected_q_ci(q_cluster)
+}
+```
+
+***Step 4: Implement the CAVI algorithm***
+
+```{r}
+cavi <- function(y, k = 5, max_iter = 30, 
+                 prior_sd = 1, threshold = 0.1){
+  
+  # instantiate parameters for q(mu_i) 
+  m_k <- rnorm(k)
+  sd_k <- rgamma(k, 5)
+  
+  # instantiate q(c_j)
+  q_cluster <- matrix(1/k, nrow = length(y), ncol = k) 
+  
+  # keep track of ELBO to check convergence
+  elbo_trace <- numeric(length = max_iter+1)
+  elbo_trace <- compute_elbo(y, q_cluster, m_k, sd_k)
+  
+  for (iter in 1:max_iter){
+    
+    # loop through each data point 
+    # update the q factor for the cluster assignment (i.e. q(c_i))
+    for (j in 1:length(y)){
+      # update q(c_j)
+      q_cluster[j,] <- exp(y[j]*m_k - 0.5*(sd_k^2+m_k^2))
+      
+      # normalize rowwise
+      q_cluster[j,] <- q_cluster[j,]/sum(q_cluster[j,])
+    }
+    
+    # print(q_cluster[1:5, 1:k])
+    
+    # loop through each cluster
+    # update the q factor of that latent variable 
+    new_sd <- rep(0, k)
+    new_m <- rep(0, k)
+    for (i in 1:k){
+      # update parameters for q(mu_i)
+      new_sd[i] <- 1/(1/prior_sd^2 + sum(q_cluster[,i]))
+      new_m[i] <- sum(q_cluster[,i] * y)/(1/prior_sd^2 + sum(q_cluster[,i]))
+    }
+    sd_k <- new_sd
+    m_k <- new_m
+    
+    # compute elbo to check convergence
+    elbo_trace[iter+1] <- compute_elbo(y, q_cluster, m_k, sd_k)
+    
+    # early termination if converged
+    if((elbo_trace[iter+1] - elbo_trace[iter]) <0.1 ) break
+  }
+  
+  # return a list that include
+  # - data.frame of fitted variational parameters
+  # - data.frame of computed elbo per iteration
+  list(
+    variational_params = data.frame(
+      m = m_k,
+      sd_k = sd_k
+    ),
+    elbos = data.frame(
+      iter = 0:(length(elbo_trace) - 1),
+      elbo = elbo_trace
+    )
+  )
+}
+```
+
+Visualize ELBOs
+
+```{r}
+cavi_out <- cavi(y)
+
+ggplot(cavi_out$elbos) +
+  geom_line(
+    aes(
+      x = iter,
+      y = elbo
+    ),
+    color = "cornflowerblue"
+  )
+```
+
+Compare variational parameters and real mus
+
+```{r}
+cavi_out$variational_params
+
+ggplot(
+  data.frame(
+    y = y,
+    data_cluster = as.factor(data_cluster)
+  )
+) +
+  geom_density(
+    aes(
+      x = y, color = data_cluster
+    )
+  ) +
+  geom_vline(
+    aes(
+      xintercept = m
+    ),
+    color = "red",
+    linetype = "dashed",
+    data = cavi_out$variational_params
+  )
+```
 
 #### Related packages
 
 -   **R** - vglmer
 
 ### Applications of Variational Inference
+
+Variational inference is widely applied to Machine Learning, especially Deep Learning to quantify uncertainty
+
+-   Variational Auto Encoder
+
+    -   this [stackoverflow discussion](https://stats.stackexchange.com/a/500240) clearly explains VAE from a Bayesian perspective
+
+    -   also refer to this [blog](https://medium.com/analytics-vidhya/variational-inference-in-context-of-variational-autoencoders-vaes-e96bfe859980) to see the relationship between varational inference and variational auto encoder
+
+-   
 
 ## Deep Probabilistic Programming
 
@@ -489,3 +780,5 @@ Variational inference
 -   **Python** - Pyro
 
 ### Application of probabilistic deep learning
+
+-   
