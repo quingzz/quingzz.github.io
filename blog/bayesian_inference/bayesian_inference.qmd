@@ -1,8 +1,8 @@
 ---
 title: Bayesian inference 
-description: "Overview of methods for Bayesian inference, and its application in deep probabilistic programming"
+description: "Overview of methods for Bayesian inference, and its potential application in deep probabilistic programming"
 author: Anh Phan
-date: "2025-05-19"
+date: "2026-04-24"
 image: "../default_blog_pic.png"
 format: 
   html:
@@ -60,7 +60,7 @@ $$
 P(D) = \int^\Theta P(D, \theta)d\theta = \int^\Theta P(D|\theta) P(\theta) d\theta
 $$
 
-That is to say, we need integrate over all the possible values in the parameter space ( $\Theta$ ). In most realistic models, it is impossible to derive this integral in closed form (with a caveat, see @note-conjugate-prior) or requires exponential time to compute.
+That is to say, we need integrate over [all the possible values]{.underline} in the parameter space ( $\Theta$ ). In most realistic models, it is impossible to derive this integral in closed form (with a caveat, see @note-conjugate-prior) or requires exponential time to compute.
 
 To address this problem, there 2 main approaches proposed for Bayesian inference:
 
@@ -105,9 +105,9 @@ To perform the sampling process, some questions we may encounter are:
 
 -   How should we determine the parameter space?
 
--   What is the formulation for $Q(\theta_{t-1})$?
+-   How should we propose the new value? (i.e. What is the formulation for $Q(\theta_{t-1})$?)
 
--   What is the formulation for $A(\theta_t, \theta_{t-1})$?
+-   How do we decide whether to accept the proposed parameter? (i.e. What is the formulation for $A(\theta_t, \theta_{t-1})$?)
 
 *How should we determine the parameter space?*
 
@@ -123,7 +123,7 @@ The choice of distribution for prior has been proven to have a big impact on the
 One of the biggest critiques for Bayesian statistics is the need for a strong assumption for prior.
 :::
 
-*What is the formulation for* $Q(\theta_{t-1})$*? What is the formulation for* $A(\theta_t, \theta_{t-1})$*?*
+*What is the formulation for* $Q(\theta_{t-1})$ *and* $A(\theta_t, \theta_{t-1})$*?*
 
 The answer to these 2 questions both depend on the algorithm we decide to use. But the goal remains the same, and that is to select $\theta_t$ such that we can maximise $P(\theta_t|D)$.
 
@@ -215,7 +215,7 @@ Under Metropolis-Hastings Random Walk algorithm:
 
 -   Whether $\theta_t$ is accepted is determined by a probability called "acceptance probability", formulated as $AP(\theta_t, \theta_{t-1}) = \frac{P(D|\theta_t)P(\theta_t)}{P(D|\theta_{t-1}) P(\theta_{t-1})}$, i.e., $A(\theta_t, \theta_{t-1}) \sim \text{Bernoulli}(AP(\theta_t, \theta_{t-1}))$
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 #| code-fold: true
 #| code-summary: "Code for MH Random Walk algorithm"
 library(tidyverse)
@@ -286,7 +286,7 @@ random_walk_mh <- function(y,
 mcmc_out <- suppressWarnings(random_walk_mh(y))
 ```
 
-***Step 3: Visualize the output***
+***Step 4: Visualize the output***
 
 For this example we will visualize 2 things:
 
@@ -365,6 +365,12 @@ Several packages have been developed to facilitate the process of fitting a Baye
 -   pMCMC is used for estimating parameter for stochastic model
 
 ## Variational inference
+
+::: callout-caution
+#### WARNING
+
+This section is still a work in progress, please proceed with caution and take the information with a (lots of) grain(s) of salt =))))
+:::
 
 ::: callout-warning
 #### Disclaimer
@@ -463,7 +469,7 @@ It is worth mentioning that generally speaking, variational family is [**NOT**]{
 
 ### Implementation for Variational Inference
 
-#### Implementation in R
+#### Manual implementation in R
 
 The implementation is separated into the following sections:
 
@@ -486,6 +492,8 @@ For this example, the data is generated from a mixture of $k$ Gaussian distribut
     -   Sample value for the data point: $y_j \sim \mathcal{N}(\mu_i, 0)$ where $j = 1, 2, …, n$
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Simulate data"
 set.seed(55) # set seed for reproducibility
 n <- 1000 # number of samples
 k <- 5 # set k, aka number of clusters
@@ -504,6 +512,8 @@ y <- rnorm(n, mean = cluster_mus[data_cluster], sd = 1)
 Visualize data points
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Code for plotting"
 ggplot(
   data.frame(
     y = y,
@@ -533,6 +543,8 @@ ggplot(
 ***Step 2: Formulate the model***
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Functions to compute log priors"
 log_mu_prior <- function(mu, m_k, sd_k){
   dnorm(mu, mean = m_k, sd = sd_k, log = TRUE)
 }
@@ -587,6 +599,9 @@ $$
 $$
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Functions to compute the expected values"
+
 # compute expected log probability of the estimated mean of cluster i
 expected_log_likelihood <- function(y, q_cluster, m_k, sd_k){
   
@@ -631,6 +646,9 @@ compute_elbo <- function(y, q_cluster, m_k, sd_k, sigma_prior=1){
 ***Step 4: Implement the CAVI algorithm***
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Function to implement CAVI"
+
 cavi <- function(y, k = 5, max_iter = 30, 
                  prior_sd = 1, threshold = 0.1){
   
@@ -697,6 +715,8 @@ cavi <- function(y, k = 5, max_iter = 30,
 Visualize ELBOs
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Code for plotting ELBOs"
 cavi_out <- cavi(y)
 
 ggplot(cavi_out$elbos) +
@@ -712,6 +732,8 @@ ggplot(cavi_out$elbos) +
 Compare variational parameters and real mus
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Code for plotting"
 cavi_out$variational_params
 
 ggplot(
@@ -749,11 +771,13 @@ Variational inference is widely applied to Machine Learning, especially Deep Lea
 
     -   also refer to this [blog](https://medium.com/analytics-vidhya/variational-inference-in-context-of-variational-autoencoders-vaes-e96bfe859980) to see the relationship between varational inference and variational auto encoder
 
--   
+//TBD:
 
 ## Deep Probabilistic Programming
 
-Frequentist approach:
+//TBD:
+
+Frequentist approach (?):
 
 -   Conformal prediction
 
@@ -781,4 +805,4 @@ Variational inference
 
 ### Application of probabilistic deep learning
 
--   
+//TBD:
