@@ -48,8 +48,8 @@ jobs:
         with:
           cache-version: 2
 
-      - name: Setup `tlmgr` through R `tinytex`
-        run: Rscript -e 'tinytex::install_tinytex();tinytex::tlmgr_update();tinytex::tlmgr_install("libertine")'
+      - name: Setup TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
 
       - name: Publish to GitHub Pages (and render) 
         uses: quarto-dev/quarto-actions/publish@v2
